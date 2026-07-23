@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AdMate Campaign Workbook
 
-## Getting Started
+외부 광고주와 대행사가 OpenAI Ads 캠페인 제작에 필요한 정보를 단계별로 작성하는 독립 웹 서비스입니다.
 
-First, run the development server:
+## 현재 범위
+
+- 담당자, 캠페인, 상품·고객, 광고 이미지, 표현 기준 단계형 입력
+- 각 필드의 작성 목적·방법·예시 제공
+- 여러 캠페인·상품·이미지 추가 및 연결
+- 브라우저 자동 임시저장과 제출 전 누락 확인
+- 반응형·키보드 접근 가능한 기본 UI
+
+현재 버전은 화면과 입력 흐름 검증용 MVP입니다. 서버 저장, 실제 파일 업로드, 인증, 접수 및 XLSX 출력은 다음 단계에서 연결합니다.
+
+## 실행
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 검사
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
