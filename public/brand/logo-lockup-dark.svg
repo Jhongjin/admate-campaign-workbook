@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 48" width="236" height="48">
+  <path d="M12 3h24a9 9 0 0 1 9 9v20a9 9 0 0 1-9 9H21.5L12.5 47v-6H12a9 9 0 0 1-9-9V12a9 9 0 0 1 9-9Z" fill="#E51D35"/>
+  <path d="M17 30.5V15.5L31 30.5V15.5" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="31" cy="15.5" r="3.4" fill="#37D5A1"/>
+  <text x="58" y="27" font-family="Pretendard, 'Noto Sans KR', Arial, sans-serif" font-size="19" font-weight="800" fill="#ffffff" letter-spacing="-0.4">KT nasmedia</text>
+  <text x="58" y="42" font-family="Pretendard, 'Noto Sans KR', Arial, sans-serif" font-size="10.5" font-weight="600" fill="#94a1b6" letter-spacing="0.3">OpenAI Ads · Context Creative Agent</text>
+</svg>
