@@ -48,30 +48,30 @@ const DEMO_TABS = [
 ];
 
 const PIPELINE = [
-  { no: "STEP 01", en: "Data Input", ko: "수집", desc: "상품, 혜택, 키워드, 타깃, 소재, 정책 등 광고주 자료의 표준화 수집" },
-  { no: "STEP 02", en: "Context", ko: "설계", desc: "구매여정, 질문 의도, 상황을 결합한 광고그룹 및 Context Hints 확정" },
-  { no: "STEP 03", en: "Creative", ko: "생성·검수", desc: "이용자 고민을 직접적으로 건드리는 Title & Copy 생성 및 2차 품질 검수" },
-  { no: "STEP 04", en: "Validation", ko: "검증", desc: "글자수, 의미 중복, 근거, 정책 위반 요소 등 사전 플래그 (Auto QA)" },
-  { no: "STEP 05", en: "Review & Upload", ko: "확정", desc: "운영자·광고주가 즉시 확인 가능한 검수용 파일 출력 및 최종 업로드" },
+  { no: "STEP 01", en: "Data Input", ko: "수집", desc: "상품·혜택·키워드·타깃·정책 자료를 표준화해 수집" },
+  { no: "STEP 02", en: "Context", ko: "설계", desc: "구매여정과 질문 의도를 결합한 광고그룹·Context Hints 확정" },
+  { no: "STEP 03", en: "Creative", ko: "생성·검수", desc: "이용자 고민을 건드리는 Title & Copy 생성과 2차 품질 검수" },
+  { no: "STEP 04", en: "Validation", ko: "검증", desc: "글자수·의미 중복·정책 위반 요소 사전 플래그 (Auto QA)" },
+  { no: "STEP 05", en: "Review & Upload", ko: "확정", desc: "즉시 확인 가능한 검수용 파일 출력과 최종 업로드" },
 ];
 
 const DUAL_AGENT = [
-  { tag: "1차 생성 AI Agent", title: "고민과 해결 기반 카피 생성", desc: "구매여정과 Context Hints에 맞춰 이용자의 고민을 자극하는 Title과 해결 방향을 제시하는 Copy를 생성합니다." },
-  { tag: "2차 검수 AI Agent", title: "연결성·자연스러움·광고 매력도 검수", desc: "생성된 문안을 다시 검수해 맥락 연결성, 문장의 자연스러움, 광고로서의 매력도를 점검합니다." },
+  { tag: "1차 생성 AI Agent", title: "고민과 해결 기반 카피 생성", desc: "Context Hints에 맞춰 고민을 자극하는 Title과 해결 방향을 제시하는 Copy를 생성합니다." },
+  { tag: "2차 검수 AI Agent", title: "연결성·자연스러움·광고 매력도 검수", desc: "생성된 문안의 맥락 연결성, 문장의 자연스러움, 광고 매력도를 다시 점검합니다." },
 ];
 
 const PROCESS = [
-  { no: "01", title: "브리프 작성", desc: "OpenAI Ads 워크북에서 캠페인, 상품, 표현 기준을 입력합니다. 약 15분이면 충분합니다." },
-  { no: "02", title: "맥락 설계·카피 생성", desc: "Context Creative Agent가 광고그룹과 Context Hints를 설계하고, Dual AI Agent가 카피를 생성·검수합니다." },
-  { no: "03", title: "검수·승인", desc: "AI 자동 검수를 통과한 초안을 검수용 파일로 전달하고, 광고주 승인 후 확정합니다." },
+  { no: "01", title: "브리프 작성", desc: "OpenAI Ads 워크북에 캠페인·상품·표현 기준을 입력합니다. 약 15분이면 충분합니다." },
+  { no: "02", title: "맥락 설계·카피 생성", desc: "Agent가 광고그룹·Context Hints를 설계하고, Dual AI Agent가 카피를 생성·검수합니다." },
+  { no: "03", title: "검수·승인", desc: "자동 검수를 통과한 초안을 검수 파일로 전달하고, 광고주 승인 후 확정합니다." },
   { no: "04", title: "라이브 & 리포트", desc: "Ads Manager 업로드로 캠페인을 라이브하고 운영 현황을 리포트합니다." },
 ];
 
 const EFFECTS = [
-  { en: "SCALE & SPEED", title: "제작 효율화와 대량 확장", desc: "수작업 카피 제작 시간을 획기적으로 단축하고, 상품(SKU)·타깃·구매여정별 카피를 즉시 대량 확장합니다." },
-  { en: "STANDARDIZATION", title: "품질 표준화", desc: "담당자 역량에 따른 카피 품질 편차를 제거하고, 일관된 기준의 광고 문구 품질을 유지합니다." },
-  { en: "CONTEXTUAL PRECISION", title: "맥락 정교화", desc: "단순 키워드를 넘어 질문·상황 기반의 입체적 Context Hints를 설계하고, ChatGPT 유저의 실제 대화 맥락에 맞춰 카피를 설계합니다." },
-  { en: "RISK MANAGEMENT", title: "리스크 사전 통제", desc: "글자수 초과, 의미 중복, 정책 위반 요소를 사전에 플래그 처리하고, 직관적이고 빠른 검수 파일을 제공합니다." },
+  { en: "SCALE & SPEED", title: "제작 효율화와 대량 확장", desc: "수작업 카피 제작 시간을 크게 단축하고, 상품·타깃·구매여정별 카피를 즉시 대량 확장합니다." },
+  { en: "STANDARDIZATION", title: "품질 표준화", desc: "담당자 역량에 따른 품질 편차를 없애고, 일관된 기준의 문구 품질을 유지합니다." },
+  { en: "CONTEXTUAL PRECISION", title: "맥락 정교화", desc: "질문·상황 기반의 입체적 Context Hints를 설계해, 실제 대화 맥락에 맞춘 카피를 만듭니다." },
+  { en: "RISK MANAGEMENT", title: "리스크 사전 통제", desc: "글자수 초과·의미 중복·정책 위반 요소를 사전에 플래그하고, 빠른 검수 파일을 제공합니다." },
 ];
 
 const FAQS = [
@@ -81,6 +81,47 @@ const FAQS = [
   { q: "생성된 광고 문안을 광고주가 직접 검수할 수 있나요?", a: "네. 모든 문안은 검수용 파일로 정리되어 전달되며, 광고주와 대행사가 항목별로 승인·수정 요청할 수 있습니다. 승인된 문안만 업로드됩니다." },
   { q: "비용과 집행 조건이 궁금합니다.", a: "캠페인 목표와 규모에 따라 달라집니다. 브리프를 제출해 주시면 담당자가 검토 후 구체적인 조건과 함께 연락드립니다." },
 ];
+
+const NAV_ITEMS = [
+  { id: "why", label: "왜 ChatGPT 광고인가" },
+  { id: "solution", label: "솔루션" },
+  { id: "process", label: "진행 프로세스" },
+  { id: "impact", label: "도입 효과" },
+  { id: "faq", label: "FAQ" },
+];
+
+function useScrollChrome() {
+  const [compact, setCompact] = useState(false);
+  const [active, setActive] = useState("");
+
+  useEffect(() => {
+    const onScroll = () => setCompact(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(
+      (el): el is HTMLElement => Boolean(el),
+    );
+    if (!sections.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) setActive(visible.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
+    );
+    sections.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  return { compact, active };
+}
 
 function ContextMarquee() {
   const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
@@ -143,8 +184,8 @@ function HeroChat() {
         <div className="lp-ad">
           <span className="lp-ad-tag">SPONSORED</span>
           <strong>숙제 봐주다 지치는 저녁이라면?</strong>
-          <p>7일 체험으로 아이에게 맞는지 먼저 확인해 보세요.</p>
-          <span>자세히 보기</span>
+          <p>부모가 매번 설명하지 않아도 되는 영어 학습을 경험해 보세요.</p>
+          <span>바로가기</span>
         </div>
       </div>
       <p className="lp-chat-cap">대화 맥락에 맞춰, 광고가 답변처럼 자연스럽게 노출됩니다.</p>
@@ -195,9 +236,10 @@ function ContextHintsDemo() {
 }
 
 export function Landing() {
+  const { compact, active } = useScrollChrome();
   return (
     <div className="lp">
-      <header className="lp-header">
+      <header className={`lp-header${compact ? " is-compact" : ""}`}>
         <div className="lp-container lp-header-in">
           <Link href="/" className="lp-brand">
             <BrandMark />
@@ -207,11 +249,16 @@ export function Landing() {
             </span>
           </Link>
           <nav className="lp-nav" aria-label="주요 메뉴">
-            <a href="#why">왜 ChatGPT 광고인가</a>
-            <a href="#solution">솔루션</a>
-            <a href="#process">진행 프로세스</a>
-            <a href="#impact">도입 효과</a>
-            <a href="#faq">FAQ</a>
+            {NAV_ITEMS.map((n) => (
+              <a
+                key={n.id}
+                href={`#${n.id}`}
+                className={active === n.id ? "is-active" : undefined}
+                aria-current={active === n.id ? "true" : undefined}
+              >
+                {n.label}
+              </a>
+            ))}
           </nav>
           <Link href="/workbook" className="lp-cta lp-cta-sm">브리프 작성하기</Link>
         </div>
@@ -521,6 +568,14 @@ export function Landing() {
               <a href="https://www.nasmedia.co.kr" target="_blank" rel="noreferrer">회사 소개</a>
             </div>
           </div>
+          <button
+            type="button"
+            className={`lp-top${compact ? " is-on" : ""}`}
+            aria-label="맨 위로 이동"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            ↑
+          </button>
           <p className="lp-footer-legal">
             © 2026 Nasmedia. All rights reserved. 본 페이지에 사용된 광고 카피와 대화 예시는 이해를 돕기 위한
             가상의 예시입니다. 브리프 제출만으로 광고 게시나 비용이 발생하지 않습니다.
