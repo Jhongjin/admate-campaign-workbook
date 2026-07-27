@@ -47,24 +47,29 @@ const DEMO_TABS = [
 ];
 
 const PIPELINE = [
-  { no: "STEP 1", en: "Input", ko: "구조화", desc: "상품, 랜딩, 키워드, 타깃, 정책 등 흩어진 광고주 자료의 표준화 수집" },
-  { no: "STEP 2", en: "Context", ko: "설계", desc: "구매여정, 질문 의도, 상황을 결합한 광고그룹과 Context Hints 확장" },
-  { no: "STEP 3", en: "Creative", ko: "생성", desc: "이용자 고민을 직접 건드리는 Title & Copy 자동 생성" },
-  { no: "STEP 4", en: "Validation", ko: "검증", desc: "글자수, 의미 중복, 정책 위반 요소 사전 플래그 (Auto QA)" },
-  { no: "STEP 5", en: "Review & Upload", ko: "확정", desc: "광고주가 즉시 확인 가능한 검수용 파일 출력과 최종 업로드" },
+  { no: "STEP 01", en: "Data Input", ko: "수집", desc: "상품, 혜택, 키워드, 타깃, 소재, 정책 등 광고주 자료의 표준화 수집" },
+  { no: "STEP 02", en: "Context", ko: "설계", desc: "구매여정, 질문 의도, 상황을 결합한 광고그룹 및 Context Hints 확정" },
+  { no: "STEP 03", en: "Creative", ko: "생성·검수", desc: "이용자 고민을 직접적으로 건드리는 Title & Copy 생성 및 2차 품질 검수" },
+  { no: "STEP 04", en: "Validation", ko: "검증", desc: "글자수, 의미 중복, 근거, 정책 위반 요소 등 사전 플래그 (Auto QA)" },
+  { no: "STEP 05", en: "Review & Upload", ko: "확정", desc: "운영자·광고주가 즉시 확인 가능한 검수용 파일 출력 및 최종 업로드" },
+];
+
+const DUAL_AGENT = [
+  { tag: "1차 생성 AI Agent", title: "고민과 해결 기반 카피 생성", desc: "구매여정과 Context Hints에 맞춰 이용자의 고민을 자극하는 Title과 해결 방향을 제시하는 Copy를 생성합니다." },
+  { tag: "2차 검수 AI Agent", title: "연결성·자연스러움·광고 매력도 검수", desc: "생성된 문안을 다시 검수해 맥락 연결성, 문장의 자연스러움, 광고로서의 매력도를 점검합니다." },
 ];
 
 const PROCESS = [
-  { no: "01", title: "브리프 작성", desc: "AdMate 워크북에서 캠페인, 상품, 표현 기준을 입력합니다. 약 15분이면 충분합니다." },
-  { no: "02", title: "맥락 설계·카피 생성", desc: "Context Creative Agent가 광고그룹, Context Hints, 카피 초안을 만듭니다." },
+  { no: "01", title: "브리프 작성", desc: "OpenAI Ads 워크북에서 캠페인, 상품, 표현 기준을 입력합니다. 약 15분이면 충분합니다." },
+  { no: "02", title: "맥락 설계·카피 생성", desc: "Context Creative Agent가 광고그룹과 Context Hints를 설계하고, Dual AI Agent가 카피를 생성·검수합니다." },
   { no: "03", title: "검수·승인", desc: "AI 자동 검수를 통과한 초안을 검수용 파일로 전달하고, 광고주 승인 후 확정합니다." },
   { no: "04", title: "라이브 & 리포트", desc: "Ads Manager 업로드로 캠페인을 라이브하고 운영 현황을 리포트합니다." },
 ];
 
 const EFFECTS = [
   { en: "SCALE & SPEED", title: "제작 효율화와 대량 확장", desc: "수작업 카피 제작 시간을 획기적으로 단축하고, 상품(SKU)·타깃·구매여정별 카피를 즉시 대량 확장합니다." },
-  { en: "STANDARDIZATION", title: "품질 표준화", desc: "담당자 역량에 따른 카피 품질 편차를 제거하고, 항상 일관되고 수준 높은 광고 문구를 유지합니다." },
-  { en: "CONTEXTUAL PRECISION", title: "맥락 정교화", desc: "단순 키워드를 넘어 질문·상황 기반의 입체적 Context Hints를 설계해, ChatGPT 유저의 실제 대화 맥락에 동기화합니다." },
+  { en: "STANDARDIZATION", title: "품질 표준화", desc: "담당자 역량에 따른 카피 품질 편차를 제거하고, 일관된 기준의 광고 문구 품질을 유지합니다." },
+  { en: "CONTEXTUAL PRECISION", title: "맥락 정교화", desc: "단순 키워드를 넘어 질문·상황 기반의 입체적 Context Hints를 설계하고, ChatGPT 유저의 실제 대화 맥락에 맞춰 카피를 설계합니다." },
   { en: "RISK MANAGEMENT", title: "리스크 사전 통제", desc: "글자수 초과, 의미 중복, 정책 위반 요소를 사전에 플래그 처리하고, 직관적이고 빠른 검수 파일을 제공합니다." },
 ];
 
@@ -177,7 +182,7 @@ function ContextHintsDemo() {
       </div>
       <div className="lp-demo-flow" key={tab}>
         <div className="lp-demo-seed">
-          <span>광고주 원본 키워드</span>
+          <span>광고주 제공 Context Hints</span>
           <strong>{current.seed}</strong>
         </div>
         <div className="lp-demo-arrow">→</div>
@@ -227,14 +232,14 @@ export function Landing() {
             <div>
               <span className="lp-badge"><i />KT그룹 미디어렙 나스미디어 · OpenAI Ads</span>
               <h1>
-                단순 키워드를 넘어,
+                단순 키워드 매칭을 넘어,
                 <br />
-                대화의 <em>맥락</em>을 설계합니다
+                대화의 <em>맥락</em>을 설계하다
               </h1>
               <p className="lp-hero-sub">
-                ChatGPT 광고는 검색어 하나가 아니라 질문 의도, 상황, 구매여정에 반응합니다.
-                나스미디어 Context Creative Agent가 맥락 설계부터 카피 생성, 검수, 업로드까지
-                하나의 파이프라인으로 해결합니다.
+                ChatGPT 광고의 대화 맥락 기반 광고그룹·Context Hints, Title &amp; Copy 생성을 지원하는
+                나스미디어 전용 AI 운영 솔루션입니다. 맥락 설계부터 카피 생성, 검수, 업로드까지
+                하나의 파이프라인으로 연결합니다.
               </p>
               <div className="lp-hero-actions">
                 <Link href="/workbook-dev" className="lp-cta lp-cta-lg">캠페인 브리프 작성하기</Link>
@@ -264,29 +269,30 @@ export function Landing() {
                 <span className="lp-kicker">WHY CHATGPT ADS</span>
                 <h2 className="lp-h2">ChatGPT 광고는, 만들던 방식대로 만들 수 없습니다</h2>
                 <p className="lp-sub">
-                  ChatGPT 광고는 사용자의 검색어 하나가 아닌 질문 의도·상황·고민·구매여정을 기반으로 노출됩니다.
-                  일반적인 검색·DA 카피 제작 방식으로는 충분하지 않습니다.
+                  ChatGPT 광고는 사용자의 검색어 하나가 아닌, 질문 의도·상황·고민·구매여정을 기반으로 노출됩니다.
+                  <br className="lp-br" />{" "}
+                  일반적인 DA 카피 제작 방식으로는 충분하지 않습니다.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={100}>
               <div className="lp-compare">
                 <div className="lp-compare-card">
-                  <h3>기존 검색·DA 광고</h3>
+                  <h3>기존 검색/DA 광고</h3>
                   <ul>
-                    <li><b>기준</b><span>키워드, 타깃, 지면 중심</span></li>
-                    <li><b>메시지</b><span>상품, 기능, 혜택 중심의 카피</span></li>
-                    <li><b>운영</b><span>정형화된 단일 소재 운영</span></li>
-                    <li><b>방식</b><span>운영자의 수작업 중심</span></li>
+                    <li><b>기준</b><span>키워드·타깃·지면 중심</span></li>
+                    <li><b>메시지</b><span>상품·기능·혜택 중심 카피</span></li>
+                    <li><b>운영</b><span>캠페인 구조와 소재 규격 기반의 정형 운영</span></li>
+                    <li><b>방식</b><span>매체 세팅·입찰·타기팅 중심의 운영 및 최적화</span></li>
                   </ul>
                 </div>
                 <div className="lp-compare-card is-new">
                   <h3>ChatGPT 광고</h3>
                   <ul>
-                    <li><b>기준</b><span>대화 맥락, 질문 의도 중심</span></li>
-                    <li><b>메시지</b><span>사용자의 고민과 상황에 반응하는 카피</span></li>
+                    <li><b>기준</b><span>대화 맥락·질문 의도 중심</span></li>
+                    <li><b>메시지</b><span>사용자의 고민·상황에 반응하는 카피</span></li>
                     <li><b>운영</b><span>다양한 Context별 카피 대량 확장</span></li>
-                    <li><b>방식</b><span>AI 기반 대량 생성, 검수, 표준화 필수</span></li>
+                    <li><b>방식</b><span>AI 기반 대량 생성·검수·표준화 필수</span></li>
                   </ul>
                 </div>
               </div>
@@ -304,10 +310,11 @@ export function Landing() {
             <Reveal>
               <div className="lp-sec-head">
                 <span className="lp-kicker">OUR SOLUTION</span>
-                <h2 className="lp-h2">Nasmedia <b>Context Creative Agent</b></h2>
+                <h2 className="lp-h2">
+                  Data to Context: <b>5-Step Creative Pipeline</b>
+                </h2>
                 <p className="lp-sub">
-                  광고주 정보를 단순 복제하지 않고, ChatGPT 대화 맥락에 맞는 운영 가능한 구조로 재설계하는
-                  나스미디어 전용 AI 크리에이티브 파이프라인입니다.
+                  광고주 정보를 단순 복제하지 않고, ChatGPT 대화 맥락에 맞는 운영 가능한 구조로 재설계합니다.
                 </p>
               </div>
             </Reveal>
@@ -325,6 +332,24 @@ export function Landing() {
                 </Reveal>
               ))}
             </div>
+            <Reveal delay={120}>
+              <div className="lp-dual">
+                <div className="lp-dual-head">
+                  <span className="lp-dual-badge">STEP 03 상세</span>
+                  <strong>Dual AI Agent 기반 카피 생성 · 2차 품질 검수</strong>
+                  <p>한 번 생성하고 끝내지 않습니다. 생성과 검수를 각각 담당하는 두 개의 AI Agent가 문안 품질을 이중으로 책임집니다.</p>
+                </div>
+                <div className="lp-dual-grid">
+                  {DUAL_AGENT.map((d) => (
+                    <div key={d.tag} className="lp-dual-card">
+                      <i>{d.tag}</i>
+                      <strong>{d.title}</strong>
+                      <p>{d.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -333,9 +358,9 @@ export function Landing() {
             <Reveal>
               <div className="lp-sec-head">
                 <span className="lp-kicker">CONTEXT HINTS</span>
-                <h2 className="lp-h2">키워드 하나가, 세 갈래의 대화가 됩니다</h2>
+                <h2 className="lp-h2">Context Hints 확장: 검색어를 질문·상황 기반 대화 맥락으로</h2>
                 <p className="lp-sub">
-                  광고주가 제공한 1차원적 검색어를 AI가 파악하여, ChatGPT 유저의 실제 대화 맥락(검색·질문·상황)으로
+                  광고주가 제공한 1차원적 검색어를 AI가 파악하여, ChatGPT 유저의 실제 대화 맥락(검색/질문/상황)으로
                   입체화합니다. 업종을 선택해 확인해 보세요.
                 </p>
               </div>
@@ -351,7 +376,7 @@ export function Landing() {
             <Reveal>
               <div className="lp-sec-head">
                 <span className="lp-kicker">TITLE &amp; COPY</span>
-                <h2 className="lp-h2">&lsquo;상품·기능 나열&rsquo;에서 &lsquo;이용자 고민 해결&rsquo;로</h2>
+                <h2 className="lp-h2">&lsquo;상품·기능 중심&rsquo;에서 &lsquo;이용자 고민 해결&rsquo; 중심으로 전환</h2>
                 <p className="lp-sub">
                   상품 기능만 나열하던 원본 카피를, 사용자의 상황을 공감(Title)하고 구체적 대안을 제시(Copy)하는
                   구조로 변환합니다.
@@ -361,32 +386,32 @@ export function Landing() {
             <Reveal delay={100}>
               <div className="lp-ba">
                 <div className="lp-ba-card">
-                  <h3>광고주 제공 원본 (기능 중심)</h3>
+                  <h3>광고주 제공 원본</h3>
                   <div className="lp-ba-line">
-                    <b>TITLE</b>
-                    <p>영어는 아는 것보다 직접 쓰는 게 중요하죠.</p>
+                    <b>TITLE + COPY</b>
+                    <p>
+                      영어는 아는 것보다 직접 쓰는 게 중요하죠.
+                      <br />
+                      ChatGPT가 설명해준 영어, ○○○와 실제 실력으로 만들어보세요.
+                    </p>
                   </div>
-                  <div className="lp-ba-line">
-                    <b>COPY</b>
-                    <p>AI가 설명해준 영어, 이제 실전 실력으로 만들어보세요.</p>
-                  </div>
-                  <p className="lp-ba-insight">Insight — 상품의 기능과 브랜드명을 일방적으로 전달합니다.</p>
+                  <p className="lp-ba-insight">Insight — 상품의 기능과 혜택을 일방적으로 전달합니다.</p>
                 </div>
                 <div className="lp-ba-card is-after">
-                  <h3>Agent 생성본 (맥락 중심)</h3>
+                  <h3>Context Creative Agent 생성본</h3>
                   <div className="lp-ba-line">
                     <b>[고민 자극] TITLE</b>
-                    <p>숙제 봐주다 지치는 저녁이라면?</p>
+                    <p>아는 영어, 막상 쓰려면 어렵죠?</p>
                   </div>
                   <div className="lp-ba-line">
-                    <b>[해결 제시] COPY</b>
-                    <p>7일 동안 써보고 아이에게 맞는지 판단해 보세요.</p>
+                    <b>[해결 및 판단 제시] COPY</b>
+                    <p>단어·문장·말하기를 반복 훈련하며 실제 실력으로 이어가요.</p>
                   </div>
-                  <p className="lp-ba-insight">Insight — 부모의 실제 피로도를 짚어주고, 부담 없는 해결책을 제시해 클릭을 유도합니다.</p>
+                  <p className="lp-ba-insight">Insight — ChatGPT로 이해한 영어를 직접 쓰는 학습 행동으로 연결합니다.</p>
                 </div>
               </div>
             </Reveal>
-            <p className="lp-ba-note">* 위 카피는 이해를 돕기 위한 가상의 예시입니다.</p>
+            <p className="lp-ba-note">* 위 예시의 브랜드명은 가림 처리했습니다.</p>
           </div>
         </section>
 
@@ -397,8 +422,9 @@ export function Landing() {
                 <span className="lp-kicker">HOW WE WORK</span>
                 <h2 className="lp-h2">브리프 한 번이면, 라이브까지 연결됩니다</h2>
                 <p className="lp-sub">
-                  광고주와 대행사는 브리프 작성까지만. 이후의 맥락 설계, 카피 생성, 검수, 업로드는
-                  나스미디어의 파이프라인이 이어받습니다.
+                  광고주와 대행사는 브리프 작성까지만.
+                  <br className="lp-br" />{" "}
+                  이후의 맥락 설계, 카피 생성, 검수, 업로드는 나스미디어의 파이프라인이 이어받습니다.
                 </p>
               </div>
             </Reveal>
@@ -437,8 +463,9 @@ export function Landing() {
             </div>
             <Reveal delay={120}>
               <p className="lp-banner">
-                Context Creative Agent는 ChatGPT 광고의 가장 큰 진입 장벽인 <b>&lsquo;맥락 설계&rsquo;</b>와{" "}
-                <em>&lsquo;카피 확장&rsquo;</em>을 자동화하여, 운영 고도화를 이끄는 AI 기반 솔루션입니다.
+                Nasmedia Context Creative Agent는 ChatGPT 광고의 핵심 진입 장벽인 <b>&lsquo;맥락 설계&rsquo;</b>와
+                <br className="lp-br" />{" "}
+                <em>&lsquo;카피 확장&rsquo;</em>을 체계적으로 자동화하여, 운영 품질을 높이는 AI 기반 솔루션입니다.
               </p>
             </Reveal>
           </div>
