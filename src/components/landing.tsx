@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
 
 const CONTACT_EMAIL = "openai@nasmedia.co.kr";
 
@@ -80,16 +81,6 @@ const FAQS = [
   { q: "생성된 광고 문안을 광고주가 직접 검수할 수 있나요?", a: "네. 모든 문안은 검수용 파일로 정리되어 전달되며, 광고주와 대행사가 항목별로 승인·수정 요청할 수 있습니다. 승인된 문안만 업로드됩니다." },
   { q: "비용과 집행 조건이 궁금합니다.", a: "캠페인 목표와 규모에 따라 달라집니다. 브리프를 제출해 주시면 담당자가 검토 후 구체적인 조건과 함께 연락드립니다." },
 ];
-
-function BrandMark({ size = 34 }: { size?: number }) {
-  return (
-    <svg className="lp-brand-logo" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M12 3h24a9 9 0 0 1 9 9v20a9 9 0 0 1-9 9H21.5L12.5 47v-6H12a9 9 0 0 1-9-9V12a9 9 0 0 1 9-9Z" fill="#E51D35" />
-      <path d="M17 30.5V15.5L31 30.5V15.5" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="31" cy="15.5" r="3.4" fill="#37D5A1" />
-    </svg>
-  );
-}
 
 function ContextMarquee() {
   const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
@@ -222,7 +213,7 @@ export function Landing() {
             <a href="#impact">도입 효과</a>
             <a href="#faq">FAQ</a>
           </nav>
-          <Link href="/workbook-dev" className="lp-cta lp-cta-sm">브리프 작성하기</Link>
+          <Link href="/workbook" className="lp-cta lp-cta-sm">브리프 작성하기</Link>
         </div>
       </header>
 
@@ -242,7 +233,7 @@ export function Landing() {
                 하나의 파이프라인으로 연결합니다.
               </p>
               <div className="lp-hero-actions">
-                <Link href="/workbook-dev" className="lp-cta lp-cta-lg">캠페인 브리프 작성하기</Link>
+                <Link href="/workbook" className="lp-cta lp-cta-lg">캠페인 브리프 작성하기</Link>
                 <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[OpenAI Ads] 도입 문의")}`} className="lp-cta-ghost lp-cta-lg">도입 문의</a>
               </div>
               <p className="lp-hero-note">브리프를 제출해도 광고가 바로 게시되지 않습니다. 담당자 검토 후 진행됩니다.</p>
@@ -502,7 +493,7 @@ export function Landing() {
               </h2>
               <p>브리프 작성은 약 15분. 제출 후 담당자가 검토하여 연락드립니다.</p>
               <div className="lp-final-actions">
-                <Link href="/workbook-dev" className="lp-cta lp-cta-lg">지금 캠페인 브리프 작성하기</Link>
+                <Link href="/workbook" className="lp-cta lp-cta-lg">지금 캠페인 브리프 작성하기</Link>
                 <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("[OpenAI Ads] 도입 문의")}`} className="lp-cta-ghost lp-cta-lg">도입 문의</a>
               </div>
             </Reveal>
@@ -526,7 +517,7 @@ export function Landing() {
             </div>
             <div className="lp-footer-links">
               <a href={`mailto:${CONTACT_EMAIL}`}>도입 문의 {CONTACT_EMAIL}</a>
-              <Link href="/workbook-dev">캠페인 브리프 작성</Link>
+              <Link href="/workbook">캠페인 브리프 작성</Link>
               <a href="https://www.nasmedia.co.kr" target="_blank" rel="noreferrer">회사 소개</a>
             </div>
           </div>

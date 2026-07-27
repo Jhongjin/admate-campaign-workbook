@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
 
 type Contact = {
   company: string;
@@ -261,10 +263,10 @@ export function CampaignWorkbook() {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="AdMate Campaign Workbook 홈">
-          <span className="brand-mark">ADM</span>
-          <span><strong>AdMate</strong><small>Campaign Workbook</small></span>
-        </a>
+        <Link className="brand" href="/" aria-label="메인 페이지로 이동">
+          <BrandMark size={36} className="brand-logo" />
+          <span><strong>KT nasmedia</strong><small>OpenAI Ads · AdMate</small></span>
+        </Link>
         <div className="header-actions">
           <span className="save-status"><span className="save-dot" />{saveLabel}</span>
           <button className="text-button" type="button" onClick={resetDraft}>처음부터 작성</button>
