@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 
 type Contact = {
+  partnerType: "advertiser" | "agency";
   company: string;
   brand: string;
   name: string;
   email: string;
   phone: string;
-  partnerType: "advertiser" | "agency";
   advertiser: string;
+  hasAgency: boolean;
+  agencyCompany: string;
+  agencyName: string;
+  agencyEmail: string;
+  agencyPhone: string;
 };
 
 type Campaign = {
@@ -103,11 +108,17 @@ const emptyCreative = (campaignId = "", productId = ""): Creative => ({
   id: makeId(), campaignId, productId, fileName: "", imageUrl: "", message: "", target: "", scope: "", startDate: "", endDate: "", url: "", notice: "",
 });
 
+const emptyContact = (): Contact => ({
+  partnerType: "advertiser",
+  company: "", brand: "", name: "", email: "", phone: "", advertiser: "",
+  hasAgency: false, agencyCompany: "", agencyName: "", agencyEmail: "", agencyPhone: "",
+});
+
 const initialDraft = (): WorkbookDraft => {
   const campaign = emptyCampaign();
   const product = emptyProduct(campaign.id);
   return {
-    contact: { company: "", brand: "", name: "", email: "", phone: "", partnerType: "advertiser", advertiser: "" },
+    contact: emptyContact(),
     campaigns: [campaign],
     products: [product],
     creatives: [emptyCreative(campaign.id, product.id)],
@@ -125,6 +136,13 @@ type FieldProps = {
 };
 
 function Field({ label, required, why, example, wide, children }: FieldProps) {
+  const withExample = example
+    ? React.Children.map(children, (child) =>
+        React.isValidElement<{ placeholder?: string }>(child) && child.type !== Select
+          ? React.cloneElement(child, { placeholder: example })
+          : child,
+      )
+    : children;
   return (
     <div className={`field ${wide ? "field-wide" : ""}`}>
       <div className="field-label">
@@ -132,13 +150,16 @@ function Field({ label, required, why, example, wide, children }: FieldProps) {
         <span className={required ? "required" : "optional"}>{required ? "필수" : "선택"}</span>
       </div>
       <p className="field-why">{why}</p>
-      {children}
-      {example && (
-        <details className="field-example">
-          <summary>작성 예시</summary>
-          <p>{example}</p>
-        </details>
-      )}
+      {withExample}
+    </div>
+  );
+}
+
+function GroupLabel({ title, desc }: { title: string; desc?: string }) {
+  return (
+    <div className="field field-wide group-label">
+      <strong>{title}</strong>
+      {desc && <span>{desc}</span>}
     </div>
   );
 }
@@ -167,7 +188,11 @@ export function CampaignWorkbook() {
     const timer = window.setTimeout(() => {
       const saved = window.localStorage.getItem("admate-campaign-workbook-draft");
       if (saved) {
-        try { setDraft(JSON.parse(saved) as WorkbookDraft); } catch { /* 새 초안 사용 */ }
+        try {
+          const parsed = JSON.parse(saved) as WorkbookDraft;
+          // 이전 버전 초안에는 대행사 항목이 없으므로 기본값과 병합합니다.
+          setDraft({ ...parsed, contact: { ...emptyContact(), ...parsed.contact } });
+        } catch { /* 새 초안 사용 */ }
       }
       setHydrated(true);
     }, 0);
@@ -183,19 +208,23 @@ export function CampaignWorkbook() {
     return () => window.clearTimeout(timer);
   }, [draft, hydrated]);
 
-  const updateContact = (key: keyof Contact, value: string) => setDraft((current) => ({ ...current, contact: { ...current.contact, [key]: value } }));
+  const updateContact = (key: keyof Contact, value: string | boolean) => setDraft((current) => ({ ...current, contact: { ...current.contact, [key]: value } }));
   const updatePolicy = (key: keyof Policy, value: string) => setDraft((current) => ({ ...current, policy: { ...current.policy, [key]: value } }));
   const updateCampaign = (id: string, key: keyof Campaign, value: string) => setDraft((current) => ({ ...current, campaigns: current.campaigns.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
   const updateProduct = (id: string, key: keyof Product, value: string) => setDraft((current) => ({ ...current, products: current.products.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
   const updateCreative = (id: string, key: keyof Creative, value: string) => setDraft((current) => ({ ...current, creatives: current.creatives.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
 
+  const isAgency = draft.contact.partnerType === "agency";
+
   const requiredMissing = useMemo(() => {
     const missing: string[] = [];
-    if (!draft.contact.company.trim()) missing.push("회사명");
+    const agency = draft.contact.partnerType === "agency";
+    if (!draft.contact.company.trim()) missing.push(agency ? "대행사명" : "회사명");
     if (!draft.contact.brand.trim()) missing.push("브랜드명");
     if (!draft.contact.name.trim()) missing.push("담당자명");
     if (!/^\S+@\S+\.\S+$/.test(draft.contact.email)) missing.push("업무 이메일");
-    if (draft.contact.partnerType === "agency" && !draft.contact.advertiser.trim()) missing.push("광고주 회사명");
+    if (agency && !draft.contact.advertiser.trim()) missing.push("광고주 회사명");
+    if (!agency && draft.contact.hasAgency && !draft.contact.agencyCompany.trim()) missing.push("대행사명");
     draft.campaigns.forEach((item, index) => {
       if (!item.name.trim()) missing.push(`캠페인 ${index + 1} 이름`);
       if (!item.budget || Number(item.budget) <= 0) missing.push(`캠페인 ${index + 1} 예산`);
@@ -220,7 +249,11 @@ export function CampaignWorkbook() {
 
   const validateCurrentStep = () => {
     const messages = [
-      !draft.contact.company || !draft.contact.brand || !draft.contact.name || !/^\S+@\S+\.\S+$/.test(draft.contact.email) || (draft.contact.partnerType === "agency" && !draft.contact.advertiser) ? "회사·브랜드·담당자와 올바른 업무 이메일을 입력해 주세요. 대행사는 광고주 회사명도 필요합니다." : "",
+      !draft.contact.company || !draft.contact.brand || !draft.contact.name || !/^\S+@\S+\.\S+$/.test(draft.contact.email)
+        ? (isAgency ? "대행사명·담당자명·업무 이메일과 광고주 회사명, 브랜드명을 입력해 주세요." : "회사명·브랜드명·담당자명과 올바른 업무 이메일을 입력해 주세요.")
+        : isAgency && !draft.contact.advertiser ? "광고주 회사명을 입력해 주세요."
+        : !isAgency && draft.contact.hasAgency && !draft.contact.agencyCompany ? "대행사명을 입력하거나 대행사 정보 입력을 해제해 주세요."
+        : "",
       draft.campaigns.some((item) => !item.name || !item.budget || !item.startDate || !item.endDate) ? "각 캠페인의 이름, 예산과 기간을 입력해 주세요." : "",
       draft.products.some((item) => !item.name || !item.summary || !item.features || !item.target || !item.need || !item.url.startsWith("http")) ? "상품명, 소개, 특징, 주요 고객, 고객 고민과 연결 페이지를 확인해 주세요." : "",
       draft.creatives.some((item) => (!item.fileName && !item.imageUrl.startsWith("http")) || !item.message) ? "각 이미지의 파일 또는 주소와 핵심 메시지를 입력해 주세요." : "",
@@ -304,36 +337,92 @@ export function CampaignWorkbook() {
           <div className="form-heading">
             <span className="step-kicker">{step + 1}단계</span>
             <h2>{steps[step][0]}</h2>
-            <p>{steps[step][1]}. 각 항목의 설명과 예시를 참고해 작성해 주세요.</p>
+            <p>{steps[step][1]}. 각 항목의 설명과 입력칸의 예시를 참고해 작성해 주세요.</p>
           </div>
 
           {step === 0 && (
             <div className="form-grid">
-              <Field label="회사명" required why="접수 내용을 회사별로 구분하고 담당 조직을 확인하는 데 사용합니다." example="주식회사 나스미디어">
-                <TextInput value={draft.contact.company} onChange={(e) => updateContact("company", e.target.value)} placeholder="회사명을 입력해 주세요" />
-              </Field>
-              <Field label="브랜드명" required why="광고 문안에 사용할 정확한 브랜드 표기를 확인합니다." example="캐츠잉글리시">
-                <TextInput value={draft.contact.brand} onChange={(e) => updateContact("brand", e.target.value)} placeholder="광고할 브랜드명을 입력해 주세요" />
-              </Field>
-              <Field label="담당자명" required why="입력 내용 확인이나 보완이 필요할 때 연락드릴 담당자입니다." example="홍길동">
-                <TextInput value={draft.contact.name} onChange={(e) => updateContact("name", e.target.value)} placeholder="담당자 이름" />
-              </Field>
-              <Field label="업무 이메일" required why="작성 재개와 접수 결과 안내에 사용할 업무용 이메일입니다." example="campaign@company.co.kr">
-                <TextInput type="email" value={draft.contact.email} onChange={(e) => updateContact("email", e.target.value)} placeholder="name@company.co.kr" />
-              </Field>
-              <Field label="연락처" why="긴급한 확인이 필요한 경우에만 사용합니다." example="010-1234-5678">
-                <TextInput value={draft.contact.phone} onChange={(e) => updateContact("phone", e.target.value)} placeholder="선택 입력" />
-              </Field>
-              <Field label="작성자 구분" required why="광고주와 대행사에 맞는 후속 확인 절차를 준비합니다.">
+              <Field label="작성자 구분" required why="광고주와 대행사에 맞는 입력 항목과 후속 확인 절차를 준비합니다." wide>
                 <Select value={draft.contact.partnerType} onChange={(e) => updateContact("partnerType", e.target.value)}>
                   <option value="advertiser">광고주</option><option value="agency">대행사</option>
                 </Select>
               </Field>
-              {draft.contact.partnerType === "agency" && (
-                <Field label="광고주 회사명" required why="어느 광고주의 캠페인인지 정확하게 연결합니다." wide>
-                  <TextInput value={draft.contact.advertiser} onChange={(e) => updateContact("advertiser", e.target.value)} placeholder="실제 광고주 회사명" />
-                </Field>
+
+              {isAgency ? (
+                <>
+                  <GroupLabel title="대행사 담당자 정보" desc="작성 내용을 확인하고 보완 요청을 드릴 대행사 담당자입니다." />
+                  <Field label="대행사명" required why="접수 내용을 대행사별로 구분하는 데 사용합니다." example="주식회사 나스미디어">
+                    <TextInput value={draft.contact.company} onChange={(e) => updateContact("company", e.target.value)} />
+                  </Field>
+                  <Field label="담당자명" required why="입력 내용 확인이나 보완이 필요할 때 연락드릴 담당자입니다." example="홍길동">
+                    <TextInput value={draft.contact.name} onChange={(e) => updateContact("name", e.target.value)} />
+                  </Field>
+                  <Field label="업무 이메일" required why="작성 재개와 접수 결과 안내에 사용할 업무용 이메일입니다." example="campaign@company.co.kr">
+                    <TextInput type="email" value={draft.contact.email} onChange={(e) => updateContact("email", e.target.value)} />
+                  </Field>
+                  <Field label="연락처" why="긴급한 확인이 필요한 경우에만 사용합니다." example="010-1234-5678">
+                    <TextInput value={draft.contact.phone} onChange={(e) => updateContact("phone", e.target.value)} />
+                  </Field>
+
+                  <GroupLabel title="광고주 정보" desc="어느 광고주의 어떤 브랜드를 광고하는지 확인합니다." />
+                  <Field label="광고주 회사명" required why="어느 광고주의 캠페인인지 정확하게 연결합니다." example="캐츠잉글리시 주식회사">
+                    <TextInput value={draft.contact.advertiser} onChange={(e) => updateContact("advertiser", e.target.value)} />
+                  </Field>
+                  <Field label="브랜드명" required why="광고 문안에 사용할 정확한 브랜드 표기를 확인합니다." example="캐츠잉글리시">
+                    <TextInput value={draft.contact.brand} onChange={(e) => updateContact("brand", e.target.value)} />
+                  </Field>
+                </>
+              ) : (
+                <>
+                  <GroupLabel title="광고주 담당자 정보" desc="작성 내용을 확인하고 보완 요청을 드릴 담당자입니다." />
+                  <Field label="회사명" required why="접수 내용을 회사별로 구분하고 담당 조직을 확인하는 데 사용합니다." example="캐츠잉글리시 주식회사">
+                    <TextInput value={draft.contact.company} onChange={(e) => updateContact("company", e.target.value)} />
+                  </Field>
+                  <Field label="브랜드명" required why="광고 문안에 사용할 정확한 브랜드 표기를 확인합니다." example="캐츠잉글리시">
+                    <TextInput value={draft.contact.brand} onChange={(e) => updateContact("brand", e.target.value)} />
+                  </Field>
+                  <Field label="담당자명" required why="입력 내용 확인이나 보완이 필요할 때 연락드릴 담당자입니다." example="홍길동">
+                    <TextInput value={draft.contact.name} onChange={(e) => updateContact("name", e.target.value)} />
+                  </Field>
+                  <Field label="업무 이메일" required why="작성 재개와 접수 결과 안내에 사용할 업무용 이메일입니다." example="campaign@company.co.kr">
+                    <TextInput type="email" value={draft.contact.email} onChange={(e) => updateContact("email", e.target.value)} />
+                  </Field>
+                  <Field label="연락처" why="긴급한 확인이 필요한 경우에만 사용합니다." example="010-1234-5678">
+                    <TextInput value={draft.contact.phone} onChange={(e) => updateContact("phone", e.target.value)} />
+                  </Field>
+
+                  <label className="field field-wide field-check">
+                    <input
+                      type="checkbox"
+                      checked={draft.contact.hasAgency}
+                      onChange={(e) => updateContact("hasAgency", e.target.checked)}
+                    />
+                    <span>
+                      <strong>대행사 정보도 함께 입력합니다</strong>
+                      <small>대행사가 캠페인 운영에 함께 참여하는 경우에만 선택해 주세요.</small>
+                    </span>
+                  </label>
+
+                  {draft.contact.hasAgency && (
+                    <>
+                      <GroupLabel title="대행사 정보" desc="대행사 담당자에게도 확인이 필요할 때 사용합니다." />
+                      <Field label="대행사명" required why="어느 대행사가 함께 참여하는지 확인합니다." example="주식회사 나스미디어">
+                        <TextInput value={draft.contact.agencyCompany} onChange={(e) => updateContact("agencyCompany", e.target.value)} />
+                      </Field>
+                      <Field label="대행사 담당자명" why="대행사 측 확인이 필요할 때 연락드릴 담당자입니다." example="김대리">
+                        <TextInput value={draft.contact.agencyName} onChange={(e) => updateContact("agencyName", e.target.value)} />
+                      </Field>
+                      <Field label="대행사 이메일" why="대행사 담당자에게 함께 안내가 필요할 때 사용합니다." example="agency@company.co.kr">
+                        <TextInput type="email" value={draft.contact.agencyEmail} onChange={(e) => updateContact("agencyEmail", e.target.value)} />
+                      </Field>
+                      <Field label="대행사 연락처" why="긴급한 확인이 필요한 경우에만 사용합니다." example="010-1234-5678">
+                        <TextInput value={draft.contact.agencyPhone} onChange={(e) => updateContact("agencyPhone", e.target.value)} />
+                      </Field>
+                    </>
+                  )}
+                </>
               )}
+
               <div className="privacy-callout field-wide"><strong>개인정보 입력 전 확인</strong><p>고객 이름, 전화번호, 이메일, 회원번호 등 소비자 개인정보는 입력하거나 첨부하지 마세요.</p></div>
             </div>
           )}
