@@ -20,11 +20,13 @@ export function V2Impact() {
         <div className={`${s.wrap} ${cards.cls}`}>
           <div className={s.impact}>
             {IMPACT.map((it, i) => (
-              <div className={s.impactCard} key={it.en} style={{ animationDelay: `${i * 130}ms` }}>
-                <span className={s.impactBar} style={{ animationDelay: `${i * 130 + 250}ms` }} />
-                <i>{it.en}</i>
-                <strong>{it.title}</strong>
-                <p>{it.desc}</p>
+              <div className={s.impactReveal} key={it.en} style={{ animationDelay: `${i * 130}ms` }}>
+                <div className={s.impactCard}>
+                  <span className={s.impactBar} style={{ animationDelay: `${i * 130 + 250}ms` }} />
+                  <i>{it.en}</i>
+                  <strong>{it.title}</strong>
+                  <p>{it.desc}</p>
+                </div>
               </div>
             ))}
           </div>

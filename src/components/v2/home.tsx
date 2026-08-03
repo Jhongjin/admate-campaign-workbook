@@ -19,7 +19,6 @@ function Chat() {
           <span className={s.adTag}>SPONSORED</span>
           <strong>숙제 봐주다 지치는 저녁이라면?</strong>
           <p>부모가 매번 설명하지 않아도 되는 영어 학습을 경험해 보세요.</p>
-          <span className={s.cta}>바로가기</span>
         </div>
       </div>
       <p className={s.chatCap}>대화 맥락에 맞춰, 광고가 답변처럼 자연스럽게 노출됩니다.</p>

@@ -42,12 +42,9 @@ export function Header() {
   return (
     <header className={s.header}>
       <div className={`${s.wrap} ${s.headerIn}`}>
-        <Link href="/v2" className={s.brand}>
-          <BrandMark size={36} className="" />
-          <span>
-            <strong>KT nasmedia</strong>
-            <small>OpenAI Ads · AdMate</small>
-          </span>
+        <Link href="/v2" className={s.brand} aria-label="KT nasmedia 홈">
+          <BrandMark size={48} className="" />
+          <strong>KT nasmedia</strong>
         </Link>
         <nav className={s.nav} aria-label="주요 메뉴">
           {NAV.map((n) => {
