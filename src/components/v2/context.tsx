@@ -34,41 +34,47 @@ export function V2Context() {
       <section className={s.section}>
         <div className={s.wrap}>
           <div className={s.demoBox}>
-            <div className={s.tabs} role="tablist" aria-label="업종 예시">
-              {DEMO_TABS.map((t, i) => (
-                <button
-                  key={t.label}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === tab}
-                  className={`${s.tab} ${i === tab ? s.tabOn : ""}`}
-                  onClick={() => pick(i)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <p className={s.autoNote}>{auto ? "업종이 자동으로 넘어갑니다. 탭을 누르면 멈춥니다." : "자동 재생을 멈췄습니다."}</p>
-
-            <div className={s.demoFlow} key={tab}>
-              <div className={s.seed}>
-                <span>광고주 제공 Context Hints</span>
-                <strong>{demo.seed}</strong>
+            <div className={s.demoTop}>
+              <div>
+                <span className={s.seedLabel}>광고주 제공 Context Hints</span>
+                <span className={s.seedWord} key={`seed-${tab}`}>{demo.seed}</span>
               </div>
-              <div className={s.demoArrow}>→</div>
-              <div className={s.hints}>
-                {demo.hints.map((h, i) => (
-                  <div
-                    key={h.type}
-                    className={`${s.hint} ${h.type === "search" ? s.hSearch : h.type === "question" ? s.hQuestion : s.hSituation}`}
-                    style={{ animationDelay: `${i * 150}ms` }}
+              <div className={s.tabs} role="tablist" aria-label="업종 예시">
+                {DEMO_TABS.map((t, i) => (
+                  <button
+                    key={t.label}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === tab}
+                    className={`${s.tab} ${i === tab ? s.tabOn : ""}`}
+                    onClick={() => pick(i)}
                   >
-                    <b>{h.title}</b>
-                    <p>{h.text}</p>
-                    <small>{h.note}</small>
-                  </div>
+                    {t.label}
+                  </button>
                 ))}
               </div>
+            </div>
+
+            <div className={s.expandBar}>
+              <i>↓</i>
+              AI가 세 가지 대화 맥락으로 확장합니다
+              <span className={s.autoNote}>
+                {auto ? "업종 자동 전환 중 · 탭을 누르면 멈춥니다" : "자동 전환을 멈췄습니다"}
+              </span>
+            </div>
+
+            <div className={s.hintRows} key={tab}>
+              {demo.hints.map((h, i) => (
+                <div
+                  key={h.type}
+                  className={`${s.hintRow} ${h.type === "search" ? s.hSearch : h.type === "question" ? s.hQuestion : s.hSituation}`}
+                  style={{ animationDelay: `${i * 150}ms` }}
+                >
+                  <span className={s.hintChip}>{h.title}</span>
+                  <p className={s.hintText}>{h.text}</p>
+                  <span className={s.hintNote}>{h.note}</span>
+                </div>
+              ))}
             </div>
 
             <p className={s.demoResult}>

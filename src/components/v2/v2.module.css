@@ -174,17 +174,17 @@
 .homeCard span { display: inline-block; margin-top: 18px; color: var(--blue); font-size: 15px; font-weight: 800; }
 
 /* ---------- why : compare rows ---------- */
-.compareHead { display: grid; grid-template-columns: 110px minmax(0, 1fr) 56px minmax(0, 1fr); gap: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-.compareHead span { font-size: 15px; font-weight: 800; letter-spacing: 0.02em; color: var(--dim); }
+.compareHead { display: grid; grid-template-columns: 118px minmax(0, 1fr) 56px minmax(0, 1fr); gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.compareHead span { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--body); }
 .compareHead .colNew { color: #9cc4ff; }
 .cmpRow {
-  display: grid; grid-template-columns: 110px minmax(0, 1fr) 56px minmax(0, 1fr); gap: 24px;
-  align-items: center; padding: 30px 0; border-bottom: 1px solid var(--line-soft);
+  display: grid; grid-template-columns: 118px minmax(0, 1fr) 56px minmax(0, 1fr); gap: 24px;
+  align-items: center; padding: 32px 0; border-bottom: 1px solid var(--line-soft);
 }
-.cmpKey { color: var(--dim); font-size: 15px; font-weight: 800; letter-spacing: 0.04em; }
-.cmpBefore { color: var(--dim); font-size: 18px; line-height: 1.7; opacity: 0; transform: translateX(-24px); }
-.cmpArrow { text-align: center; color: var(--blue); font-size: 20px; opacity: 0; }
-.cmpAfter { color: var(--text); font-size: 18px; line-height: 1.7; font-weight: 600; opacity: 0; transform: translateX(24px); }
+.cmpKey { color: var(--dim); font-size: 17px; font-weight: 800; letter-spacing: 0.03em; }
+.cmpBefore { color: var(--dim); font-size: 20px; line-height: 1.7; opacity: 0; transform: translateX(-24px); }
+.cmpArrow { text-align: center; color: var(--blue); font-size: 22px; opacity: 0; }
+.cmpAfter { color: var(--text); font-size: 20px; line-height: 1.7; font-weight: 600; opacity: 0; transform: translateX(24px); }
 .inView .cmpBefore { animation: slideL 0.55s ease forwards; }
 .inView .cmpArrow { animation: fade 0.4s ease 0.3s forwards; }
 .inView .cmpAfter { animation: slideR 0.55s ease 0.14s forwards; }
@@ -200,8 +200,8 @@
 .quote b { color: var(--blue); }
 
 /* ---------- solution : vertical pipeline ---------- */
-.pipe { position: relative; }
-.pipeLine { position: absolute; left: 27px; top: 40px; bottom: 40px; width: 2px; background: var(--line); overflow: hidden; }
+.pipe { position: relative; z-index: 0; }
+.pipeLine { position: absolute; z-index: 0; left: 27px; top: 40px; bottom: 40px; width: 2px; background: var(--line); overflow: hidden; }
 .pipeLineFill { display: block; width: 100%; height: 100%; background: linear-gradient(var(--blue), var(--mint)); transform-origin: top; transform: scaleY(0); }
 .inView .pipeLineFill { animation: grow 2.6s ease forwards 0.2s; }
 @keyframes grow { to { transform: scaleY(1); } }
@@ -210,14 +210,16 @@
   position: relative; display: grid; grid-template-columns: 96px minmax(200px, 260px) minmax(0, 1fr);
   gap: 32px; align-items: start; padding: 30px 0;
 }
+/* 원은 항상 불투명해야 뒤의 진행선이 숫자를 가리지 않습니다.
+   --dot-lit 은 blue-soft(13%)를 배경색 위에 미리 합성한 불투명값입니다. */
 .pipeDot {
-  position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%;
+  position: relative; z-index: 2; width: 56px; height: 56px; border-radius: 50%;
   display: grid; place-items: center; background: var(--panel); border: 2px solid var(--line);
-  color: var(--dim); font-size: 16px; font-weight: 850; transition: 0.4s ease;
+  color: var(--dim); font-size: 17px; font-weight: 850; transition: 0.4s ease;
 }
 .inView .pipeDot { animation: litDot 0.5s ease forwards; }
 @keyframes litDot {
-  to { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  to { border-color: var(--blue); color: #9cc4ff; background: #121d33; }
 }
 .pipeName strong { display: block; font-size: 25px; letter-spacing: -0.03em; }
 .pipeName small { display: block; margin-top: 7px; color: var(--blue); font-size: 16px; font-weight: 750; }
@@ -235,29 +237,38 @@
 .dualCard p { margin: 0; color: var(--body); font-size: 17.5px; line-height: 1.8; font-weight: 450; }
 
 /* ---------- context demo ---------- */
-.demoBox { border: 1px solid var(--line); background: var(--panel); border-radius: 22px; padding: 40px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 14px; }
+/* Context Hints — 좌우 3분할 대신 전폭 행 구조.
+   빈 공간을 없애고 본문 행폭을 최대로 확보합니다. */
+.demoBox { border: 1px solid var(--line); background: var(--panel); border-radius: 22px; padding: 38px 40px 34px; }
+.demoTop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px 28px; }
+.seedLabel { display: block; color: var(--dim); font-size: 15px; font-weight: 800; letter-spacing: 0.04em; }
+.seedWord { display: block; margin-top: 12px; font-size: clamp(24px, 1.3vw + 1rem, 34px); line-height: 1.35; letter-spacing: -0.035em; font-weight: 800; }
+.tabs { display: flex; flex-wrap: wrap; gap: 9px; }
 .tab { border: 1px solid var(--line); background: transparent; color: var(--body); border-radius: 999px; padding: 11px 24px; font-size: 15.5px; font-weight: 700; cursor: pointer; transition: 0.15s ease; }
 .tab:hover { color: var(--text); }
 .tabOn { background: var(--blue); border-color: var(--blue); color: #fff; }
-.autoNote { margin: 0 0 30px; color: var(--dim); font-size: 14px; }
-.demoFlow { display: grid; grid-template-columns: minmax(0, 0.92fr) 56px minmax(0, 1.35fr); gap: 18px; align-items: center; }
-.seed { border: 1px solid var(--line); background: var(--panel-2); border-radius: 15px; padding: 28px; }
-.seed span { color: var(--dim); font-size: 14px; font-weight: 800; letter-spacing: 0.05em; }
-.seed strong { display: block; margin-top: 13px; font-size: 21px; line-height: 1.45; letter-spacing: -0.025em; }
-.demoArrow { text-align: center; color: var(--dim); font-size: 22px; }
-.hints { display: grid; gap: 11px; }
-.hint { border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); padding: 20px 24px; opacity: 0; animation: pop 0.5s ease forwards; }
-.hint b { display: block; font-size: 13.5px; font-weight: 850; letter-spacing: 0.04em; margin-bottom: 9px; }
-.hint p { margin: 0; font-size: 18px; line-height: 1.7; color: var(--text); }
-.hint small { display: block; margin-top: 8px; color: var(--dim); font-size: 14px; }
-.hSearch b { color: var(--body); }
-.hQuestion { border-color: rgba(61, 139, 253, 0.45); }
-.hQuestion b { color: var(--blue); }
-.hSituation { border-color: rgba(55, 213, 161, 0.45); }
-.hSituation b { color: var(--mint); }
-@keyframes pop { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-.demoResult { margin: 30px 0 0; padding-top: 26px; border-top: 1px solid var(--line); color: var(--body); font-size: 17px; line-height: 1.7; text-align: center; }
+
+.expandBar { display: flex; align-items: center; gap: 12px; margin: 30px 0 18px; padding-top: 26px; border-top: 1px solid var(--line); color: var(--dim); font-size: 15.5px; }
+.expandBar i { font-style: normal; color: var(--blue); font-size: 19px; }
+.autoNote { margin-left: auto; color: var(--dim); font-size: 14px; }
+
+.hintRows { display: grid; gap: 10px; }
+.hintRow {
+  display: grid; grid-template-columns: 104px minmax(0, 1fr) 156px; gap: 26px; align-items: center;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2);
+  padding: 22px 26px; opacity: 0; animation: rowIn 0.5s ease forwards;
+}
+.hintChip { border-radius: 999px; padding: 7px 0; text-align: center; font-size: 14px; font-weight: 850; letter-spacing: 0.02em; }
+.hintText { margin: 0; font-size: 20px; line-height: 1.6; letter-spacing: -0.02em; color: var(--text); }
+.hintNote { color: var(--dim); font-size: 15px; text-align: right; }
+.hSearch .hintChip { background: rgba(148, 163, 184, 0.16); color: var(--body); }
+.hQuestion { border-color: rgba(61, 139, 253, 0.4); }
+.hQuestion .hintChip { background: var(--blue-soft); color: #9cc4ff; }
+.hSituation { border-color: rgba(55, 213, 161, 0.4); }
+.hSituation .hintChip { background: var(--mint-soft); color: var(--mint); }
+@keyframes rowIn { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: none; } }
+
+.demoResult { margin: 26px 0 0; padding-top: 24px; border-top: 1px solid var(--line); color: var(--body); font-size: 17.5px; line-height: 1.75; }
 .demoResult b { color: var(--mint); }
 
 /* before / after */
@@ -273,12 +284,12 @@
 .baNote { margin: 20px 0 0; color: var(--dim); font-size: 14px; }
 
 /* ---------- process timeline ---------- */
-.tl { position: relative; }
-.tlLine { position: absolute; left: 27px; top: 44px; bottom: 44px; width: 2px; background: var(--line); overflow: hidden; }
+.tl { position: relative; z-index: 0; }
+.tlLine { position: absolute; z-index: 0; left: 27px; top: 44px; bottom: 44px; width: 2px; background: var(--line); overflow: hidden; }
 .tlFill { display: block; width: 100%; height: 100%; background: linear-gradient(var(--blue), var(--mint)); transform-origin: top; transform: scaleY(0); }
 .inView .tlFill { animation: grow 2.4s ease forwards 0.2s; }
 .tlRow { position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 32px; padding: 30px 0; }
-.tlDot { position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); border: 2px solid var(--line); color: var(--dim); font-size: 16px; font-weight: 850; }
+.tlDot { position: relative; z-index: 2; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); border: 2px solid var(--line); color: var(--dim); font-size: 17px; font-weight: 850; }
 .inView .tlDot { animation: litDot 0.5s ease forwards; }
 .tlHead { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .tlHead strong { font-size: 25px; letter-spacing: -0.03em; }
@@ -362,8 +373,8 @@
   .trustIn { grid-template-columns: repeat(2, 1fr); }
   .pipeRow { grid-template-columns: 96px minmax(0, 1fr); }
   .pipeDesc { grid-column: 2; padding-top: 14px; }
-  .demoFlow { grid-template-columns: 1fr; }
-  .demoArrow { transform: rotate(90deg); }
+  .hintRow { grid-template-columns: 104px minmax(0, 1fr); gap: 16px 22px; }
+  .hintNote { grid-column: 2; text-align: left; }
   .nav { display: none; }
 }
 
@@ -381,8 +392,16 @@
   .pipeDesc { padding-top: 12px; }
   .cmpRow, .compareHead { grid-template-columns: 1fr; gap: 10px; }
   .cmpArrow { display: none; }
-  .cmpBefore, .cmpAfter { transform: none !important; }
+  .cmpBefore, .cmpAfter { transform: none !important; font-size: 18px; }
+  .compareHead span { font-size: 17px; }
   .demoBox { padding: 24px; }
+  .demoTop { align-items: flex-start; }
+  .expandBar { flex-wrap: wrap; gap: 8px; margin: 24px 0 14px; }
+  .autoNote { margin-left: 0; width: 100%; }
+  .hintRow { grid-template-columns: 1fr; gap: 12px; padding: 20px 22px; }
+  .hintChip { justify-self: start; padding: 7px 16px; }
+  .hintText { font-size: 18px; }
+  .hintNote { grid-column: 1; }
   .prepareList { grid-template-columns: 1fr; }
   .next { flex-direction: column; align-items: flex-start; padding: 24px 26px; }
   .footerLinks { justify-items: start; }
