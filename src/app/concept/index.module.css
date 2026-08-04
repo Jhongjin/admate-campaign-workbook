@@ -1,0 +1,33 @@
+.root { min-height: 100vh; background: #101317; color: #f1f3f6; padding: 84px 0 120px; word-break: keep-all; line-height: 1.75; }
+.wrap { width: min(1160px, calc(100% - 56px)); margin: 0 auto; }
+.kicker { color: #8b93a2; font-size: 13px; font-weight: 800; letter-spacing: .16em; }
+.title { margin: 16px 0 16px; font-size: clamp(32px, 2.4vw + 1rem, 52px); line-height: 1.16; letter-spacing: -.045em; font-weight: 800; }
+.lead { margin: 0 0 20px; max-width: 46em; color: #a7afbe; font-size: 17px; }
+.lead b { color: #f1f3f6; }
+.rules { margin: 0 0 52px; padding: 20px 24px; border: 1px solid rgba(148,163,184,.16); border-radius: 14px; background: #171b21; color: #a7afbe; font-size: 15px; }
+.rules b { color: #f1f3f6; }
+.rules ul { margin: 10px 0 0; padding-left: 18px; }
+.rules li { margin-bottom: 6px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; }
+.card { display: block; border-radius: 18px; padding: 30px; text-decoration: none; border: 1px solid rgba(255,255,255,.12); transition: .22s ease; }
+.card:hover { transform: translateY(-5px); }
+.sw { display: flex; gap: 7px; margin-bottom: 22px; }
+.sw span { width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(128,128,128,.3); }
+.tag { font-size: 12.5px; font-weight: 800; letter-spacing: .12em; opacity: .65; }
+.name { margin: 8px 0 4px; font-size: 27px; letter-spacing: -.04em; font-weight: 800; }
+.sub { margin: 0 0 16px; font-size: 15.5px; opacity: .75; }
+.meta { margin: 0 0 18px; padding-top: 14px; border-top: 1px solid rgba(128,128,128,.22); font-size: 14.5px; line-height: 1.7; opacity: .85; }
+.meta em { font-style: normal; font-weight: 700; }
+.go { font-size: 14.5px; font-weight: 800; }
+.reco { display: inline-block; margin-left: 8px; border-radius: 999px; padding: 3px 10px; font-size: 11.5px; font-weight: 800; background: #3d8bfd; color: #fff; letter-spacing: 0; }
+
+.foot { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 18px; }
+.foot a { color: #8b93a2; font-size: 14.5px; text-decoration: none; }
+.foot a:hover { color: #f1f3f6; }
+
+@media (max-width: 700px) {
+  .root { padding: 52px 0 80px; }
+  .wrap { width: calc(100% - 36px); }
+  .grid { grid-template-columns: 1fr; }
+}
