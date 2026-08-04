@@ -1,0 +1,35 @@
+/* 타이포 토큰 — 21종이던 크기를 8단계 스케일로 정리했습니다.
+   스케일 밖의 임의 크기(15.5px, 17.5px 같은 값)는 사용하지 않습니다. */
+
+:root {
+  --font-sans: "Pretendard Variable", Pretendard, "Geist", "Noto Sans KR",
+    "Apple SD Gothic Neo", ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- 크기 (8단계) ---- */
+  --t-display: clamp(40px, 2.6vw + 1.2rem, 64px); /* 페이지 히어로 */
+  --t-h1: clamp(32px, 1.8vw + 1.1rem, 46px);      /* 페이지 제목 */
+  --t-h2: clamp(26px, 1.1vw + 1rem, 34px);        /* 섹션 제목 */
+  --t-h3: 24px;                                    /* 카드 제목 */
+  --t-body-lg: 20px;                               /* 리드 문장 */
+  --t-body: 18px;                                  /* 본문 기본 */
+  --t-body-sm: 16px;                               /* 보조 본문 */
+  --t-label: 14px;                                 /* 라벨·캡션·태그 */
+
+  /* ---- 굵기 (4단계) ---- */
+  --w-regular: 400;
+  --w-medium: 500;  /* 다크 배경 본문 기본 */
+  --w-bold: 700;
+  --w-display: 800;
+
+  /* ---- 행간 (4단계) ---- */
+  --lh-tight: 1.2;    /* display */
+  --lh-snug: 1.35;    /* 제목 */
+  --lh-normal: 1.6;   /* 짧은 문장 */
+  --lh-relaxed: 1.8;  /* 본문 단락 */
+
+  /* ---- 자간 ---- */
+  --ls-tight: -0.04em;  /* display·제목 */
+  --ls-snug: -0.02em;   /* 소제목 */
+  --ls-normal: 0;
+  --ls-wide: 0.12em;    /* 영문 라벨 */
+}

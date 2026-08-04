@@ -1,0 +1,35 @@
+<!-- @dsCard group="Components" viewport="760x260" name="버튼 · 배지" subtitle="주 버튼은 화면당 1개" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: var(--s-6); display: flex; flex-direction: column; gap: var(--s-5); }
+  .row { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+  .h { font-size: var(--t-label); letter-spacing: var(--ls-wide); color: var(--c-text-tertiary); font-weight: var(--w-bold); width: 100%; }
+  .btn, .ghost { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--r-md); font-weight: var(--w-bold); font-family: inherit; cursor: pointer; transition: var(--d-base) var(--ease); }
+  .btn { background: var(--c-accent); color: var(--c-text-on-accent); border: var(--bw) solid var(--c-accent); box-shadow: var(--e-accent); }
+  .ghost { background: transparent; color: var(--c-text-primary); border: var(--bw) solid var(--c-border-strong); }
+  .lg { padding: 17px 32px; font-size: var(--t-body-sm); }
+  .sm { padding: 11px 20px; font-size: var(--t-label); }
+  .badge { border-radius: var(--r-pill); padding: 8px 16px; font-size: var(--t-label); font-weight: var(--w-bold); }
+  .b-accent { background: var(--c-accent-tint); color: var(--c-accent-text); border: var(--bw) solid var(--c-border-accent); }
+  .b-positive { background: var(--c-positive-tint); color: var(--c-positive); }
+  .b-neutral { background: rgba(148,163,184,.14); color: var(--c-text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row"><span class="h">BUTTON</span>
+    <button class="btn lg">캠페인 브리프 작성</button>
+    <button class="ghost lg">도입 문의</button>
+    <button class="btn sm">브리프 작성</button>
+    <button class="ghost sm">더 보기</button>
+  </div>
+  <div class="row"><span class="h">BADGE — 유형 구분에만</span>
+    <span class="badge b-neutral">검색어형</span>
+    <span class="badge b-accent">질문형</span>
+    <span class="badge b-positive">상황형</span>
+  </div>
+</body>
+</html>

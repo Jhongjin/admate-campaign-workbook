@@ -1,0 +1,37 @@
+/* KT nasmedia · OpenAI Ads — 색상 토큰
+   원칙: 역할별로만 쓴다. 장식 목적의 색 사용을 금지한다.
+   - accent(블루)  = 상호작용 + 화면당 강조 1회
+   - positive(민트) = '결과·완료' 의미일 때만
+   - brand(레드)   = 로고 전용 */
+
+:root {
+  /* ---- 표면 ---- */
+  --c-surface-base: #0a0e16;   /* 페이지 바탕 */
+  --c-surface-raised: #10151f; /* 카드·패널 */
+  --c-surface-sunken: #151c2a; /* 카드 안의 카드, 입력 */
+  --c-surface-accent: #121d33; /* accent 틴트(불투명) */
+
+  /* ---- 경계 ---- */
+  --c-border-subtle: rgba(148, 163, 184, 0.09);
+  --c-border: rgba(148, 163, 184, 0.15);
+  --c-border-strong: rgba(148, 163, 184, 0.34);
+  --c-border-accent: rgba(61, 139, 253, 0.45);
+  --c-border-positive: rgba(55, 213, 161, 0.45);
+
+  /* ---- 텍스트 ---- */
+  --c-text-primary: #eef2f8;
+  --c-text-secondary: #a9b4c6; /* 본문 */
+  --c-text-tertiary: #737f95;  /* 캡션·보조 */
+  --c-text-on-accent: #ffffff;
+
+  /* ---- 역할색 ---- */
+  --c-accent: #3d8bfd;
+  --c-accent-hover: #1f6ae0;
+  --c-accent-text: #9cc4ff;    /* accent 틴트 위 텍스트 */
+  --c-accent-tint: rgba(61, 139, 253, 0.13);
+
+  --c-positive: #37d5a1;
+  --c-positive-tint: rgba(55, 213, 161, 0.12);
+
+  --c-brand: #e51d35;          /* 로고 전용 */
+}

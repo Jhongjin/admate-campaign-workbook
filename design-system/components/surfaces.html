@@ -1,0 +1,24 @@
+<!-- @dsCard group="Components" viewport="760x330" name="표면 · 카드" subtitle="radius 3단계 · 그림자 3단계" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: var(--s-6); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+  .card { border: var(--bw) solid var(--c-border); background: var(--c-surface-raised); border-radius: var(--r-lg); padding: var(--pad-card); }
+  .card.accent { border-color: var(--c-border-accent); background: var(--c-surface-accent); }
+  .card.sunken { background: var(--c-surface-sunken); }
+  .card.elevated { box-shadow: var(--e-card); }
+  .lb { display: inline-block; font-size: var(--t-label); font-weight: var(--w-bold); letter-spacing: var(--ls-wide); color: var(--c-accent); }
+  h3 { margin: var(--s-3) 0 var(--s-2); font-size: var(--t-h3); font-weight: var(--w-bold); letter-spacing: var(--ls-snug); color: var(--c-text-primary); }
+  p { margin: 0; font-size: var(--t-body); color: var(--c-text-secondary); line-height: var(--lh-relaxed); }
+</style>
+</head>
+<body>
+  <div class="card"><span class="lb">RAISED</span><h3>기본 카드</h3><p>본문은 18px, 행간 1.8을 씁니다.</p></div>
+  <div class="card elevated"><span class="lb">ELEVATED</span><h3>떠 있는 카드</h3><p>히어로 등 강조 영역에만 씁니다.</p></div>
+  <div class="card sunken"><span class="lb">SUNKEN</span><h3>내부 카드</h3><p>카드 안에 중첩될 때 씁니다.</p></div>
+  <div class="card accent"><span class="lb">ACCENT</span><h3>강조 카드</h3><p>화면당 한 번만 사용합니다.</p></div>
+</body>
+</html>

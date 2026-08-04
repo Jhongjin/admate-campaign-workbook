@@ -1,0 +1,17 @@
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";
+
+/* 미리보기 카드용 기본값. 실제 앱에서는 v3.module.css 가 같은 토큰을 씁니다. */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--c-surface-base);
+  color: var(--c-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  font-weight: var(--w-medium);
+  line-height: var(--lh-relaxed);
+  word-break: keep-all;
+}

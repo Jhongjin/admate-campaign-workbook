@@ -1,0 +1,42 @@
+<!-- @dsCard group="Colors" viewport="760x430" name="색 역할" subtitle="장식용 색 사용 금지 · accent는 화면당 강조 1회" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: var(--s-6); }
+  h4 { margin: 0 0 var(--s-3); font-size: var(--t-label); letter-spacing: var(--ls-wide); color: var(--c-text-tertiary); font-weight: var(--w-bold); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  .sw { border: var(--bw) solid var(--c-border); border-radius: var(--r-md); padding: var(--s-3); }
+  .chip { height: 40px; border-radius: var(--r-sm); margin-bottom: var(--s-2); border: var(--bw) solid var(--c-border-subtle); }
+  .n { display: block; font-size: 13px; color: var(--c-text-primary); font-weight: var(--w-bold); }
+  .u { display: block; margin-top: 2px; font-size: 12px; color: var(--c-text-tertiary); font-weight: var(--w-regular); line-height: 1.5; }
+</style>
+</head>
+<body>
+  <h4>SURFACE</h4>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--c-surface-base)"></div><span class="n">base</span><span class="u">페이지 바탕</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-surface-raised)"></div><span class="n">raised</span><span class="u">카드·패널</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-surface-sunken)"></div><span class="n">sunken</span><span class="u">카드 속 카드</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-surface-accent)"></div><span class="n">accent</span><span class="u">강조 틴트</span></div>
+  </div>
+
+  <h4>TEXT</h4>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--c-text-primary)"></div><span class="n">primary</span><span class="u">제목</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-text-secondary)"></div><span class="n">secondary</span><span class="u">본문</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-text-tertiary)"></div><span class="n">tertiary</span><span class="u">캡션</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-border-strong)"></div><span class="n">border</span><span class="u">경계 3단계</span></div>
+  </div>
+
+  <h4>ROLE — 의미가 있을 때만</h4>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--c-accent)"></div><span class="n">accent</span><span class="u">상호작용·강조</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-positive)"></div><span class="n">positive</span><span class="u">결과·완료에만</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-brand)"></div><span class="n">brand</span><span class="u">로고 전용</span></div>
+    <div class="sw"><div class="chip" style="background:var(--c-accent-tint)"></div><span class="n">accent tint</span><span class="u">배지 배경</span></div>
+  </div>
+</body>
+</html>
