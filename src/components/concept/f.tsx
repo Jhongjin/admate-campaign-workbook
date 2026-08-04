@@ -7,6 +7,7 @@ import s from "./f.module.css";
 import { HeaderControls } from "./chrome";
 import { DEMO, getCopy } from "./copy";
 import { MAILTO, useCountUp, useInView, useTheme, type Variant } from "./hooks";
+import { useMouseGlow } from "./hero-fx";
 
 const SPANS = [s.c4, s.c2, s.c2, s.c4, s.c3, s.c3];
 const TONE = [s.accent, "", "", s.pos, "", ""];
@@ -30,6 +31,41 @@ function Rotator({ words }: { words: string[] }) {
   );
 }
 
+/** 히어로 대화 시뮬레이션 — 질문에서 광고가 놓이기까지를 반복 재생합니다. */
+function ChatDemo() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const gaps = [900, 1200, 1000, 1400, 2600];
+    const t = window.setTimeout(() => setStep((v) => (v + 1) % 5), gaps[step]);
+    return () => window.clearTimeout(t);
+  }, [step]);
+
+  return (
+    <div className={s.chat} aria-hidden="true">
+      <div className={s.chatHd}><i />대화 예시 · 초등 영어</div>
+      <div className={s.chatBody}>
+        {step >= 1 && (
+          <div className={`${s.bubble} ${s.bUser}`}>아이가 영어를 싫어하는데 어떻게 시작해야 할까요?</div>
+        )}
+        {step === 2 && <div className={s.typing}><i /><i /><i /></div>}
+        {step >= 3 && (
+          <div className={`${s.bubble} ${s.bAi}`}>
+            처음에는 짧게, 자주 접하는 방식이 부담이 적습니다. 아이가 흥미를 붙일 만한 소재부터 시작해 보세요.
+          </div>
+        )}
+        {step >= 4 && (
+          <div className={s.adCard}>
+            <span className={s.adTag}>SPONSORED</span>
+            <strong>숙제 봐주다 지치는 저녁이라면</strong>
+            <p>단어·문장·말하기를 반복 훈련하며 실제 실력으로 이어가요.</p>
+          </div>
+        )}
+      </div>
+      <p className={s.chatCap}>질문이 오가는 흐름을 읽고, 그 맥락에 맞는 문안을 준비합니다.</p>
+    </div>
+  );
+}
+
 function Stat({ n, l, on }: { n: string; l: string; on: boolean }) {
   const num = parseInt(n, 10) || 0;
   const suffix = n.replace(/^\d+/, "");
@@ -44,6 +80,7 @@ export function ConceptF({ variant = "new" }: { variant?: Variant }) {
   const grid = useInView<HTMLDivElement>(s.in);
   const [open, setOpen] = useState(0);
   const [hint, setHint] = useState(1);
+  const glow = useMouseGlow<HTMLElement>();
 
   const words = variant === "legacy" ? ["질문", "상황", "고민"] : ["질문", "고민", "상황"];
 
@@ -62,18 +99,25 @@ export function ConceptF({ variant = "new" }: { variant?: Variant }) {
         </div>
       </header>
 
-      <section className={`${s.hero} ${s.gridBg}`}>
-        <div className={s.wrap}>
-          <span className={s.pill}><i />{c.hero.badge}</span>
+      <section className={`${s.hero} ${s.gridBg}`} ref={glow}>
+        <span className={`${s.orb} ${s.orb1}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orb2}`} aria-hidden="true" />
+        <div className={`${s.wrap} ${s.heroLayer}`}>
+          <span className={`${s.pill} ${s.fadeUp}`}><i />{c.hero.badge}</span>
           <h1 className={s.h1}>
-            사람들이 <Rotator words={words} />을 던지는 자리에<br />브랜드를 놓습니다
+            <span className={s.fadeUp} style={{ animationDelay: "120ms", display: "inline-block" }}>사람들이</span>{" "}
+            <Rotator words={words} />
+            <span className={s.fadeUp} style={{ animationDelay: "260ms", display: "inline-block" }}>을 던지는 자리에</span>
+            <br />
+            <span className={s.fadeUp} style={{ animationDelay: "400ms", display: "inline-block" }}>브랜드를 놓습니다</span>
           </h1>
-          <p className={s.sub}>{c.hero.sub}</p>
-          <div className={s.acts}>
+          <p className={`${s.sub} ${s.fadeUp}`} style={{ animationDelay: "560ms" }}>{c.hero.sub}</p>
+          <div className={`${s.acts} ${s.fadeUp}`} style={{ animationDelay: "660ms" }}>
             <Link href="/workbook" className={`${s.btn} ${s.lg}`}>{c.primary}</Link>
             <a href={MAILTO} className={`${s.ghost} ${s.lg}`}>{c.secondary}</a>
           </div>
-          <p className={s.note}>{c.hero.note}</p>
+          <p className={`${s.note} ${s.fadeUp}`} style={{ animationDelay: "740ms" }}>{c.hero.note}</p>
+          <div className={s.fadeUp} style={{ animationDelay: "840ms" }}><ChatDemo /></div>
         </div>
       </section>
 

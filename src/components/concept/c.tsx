@@ -7,6 +7,7 @@ import s from "./c.module.css";
 import { HeaderControls } from "./chrome";
 import { getCopy } from "./copy";
 import { MAILTO, useCountUp, useInView, useTheme, type Variant } from "./hooks";
+import { Words, useMouseGlow } from "./hero-fx";
 
 /** 히어로 — 문장 뒷부분이 타이핑되며 반복 재생됩니다. */
 function Typed({ words }: { words: string[] }) {
@@ -32,6 +33,36 @@ function Typed({ words }: { words: string[] }) {
   return <em>{words[i].slice(0, len)}<span className={s.caret} /></em>;
 }
 
+const SCAN = [
+  { t: "숙제 봐주다 지치는 저녁이라면?", s: "AG-01 · 제목 · 15자", st: "통과" },
+  { t: "단어·문장·말하기를 반복 훈련하며 실제 실력으로 이어가요.", s: "AG-01 · 본문 · 31자", st: "통과" },
+  { t: "누구나 3주면 원어민처럼 말할 수 있습니다", s: "AG-02 · 제목 · 근거 없음", st: "보류" },
+  { t: "아이 동반 가능한 객실만 모아 비교해 보세요.", s: "AG-03 · 본문 · 24자", st: "통과" },
+];
+
+/** 스캔선이 훑고 지나가면 항목마다 검수 도장이 찍힙니다. */
+function ScanDoc() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setN((v) => (v + 1) % (SCAN.length + 2)), 850);
+    return () => window.clearInterval(t);
+  }, []);
+  return (
+    <div className={s.scan} aria-hidden="true">
+      <span className={s.scanBeam} />
+      <div className={s.scanHd}><span>업로드 전 검수</span><span>{Math.min(n, SCAN.length)} / {SCAN.length}</span></div>
+      {SCAN.map((r, i) => (
+        <div className={s.scanRow} key={r.t}>
+          <div><p>{r.t}</p><small>{r.s}</small></div>
+          {i < n
+            ? <span className={`${s.stamp} ${r.st === "통과" ? s.stampOk : s.stampWarn}`}>{r.st}</span>
+            : <span className={s.stampWait}>검수 중</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Stat({ n, l, on }: { n: string; l: string; on: boolean }) {
   const num = parseInt(n, 10) || 0;
   const suffix = n.replace(/^\d+/, "");
@@ -49,6 +80,7 @@ export function ConceptC({ variant = "new" }: { variant?: Variant }) {
   const { theme, toggle } = useTheme("c");
   const stats = useInView<HTMLDivElement>("");
   const tl = useInView<HTMLDivElement>(s.in);
+  const glow = useMouseGlow<HTMLElement>();
 
   const typed = variant === "legacy"
     ? ["대화의 맥락을 설계합니다", "광고그룹을 나눕니다", "문안을 검수합니다"]
@@ -69,20 +101,23 @@ export function ConceptC({ variant = "new" }: { variant?: Variant }) {
         </div>
       </header>
 
-      <section className={s.hero}>
-        <div className={`${s.wrap} ${s.heroIn}`}>
-          <span className={s.tag}>{c.hero.badge}</span>
+      <section className={s.hero} ref={glow}>
+        <span className={`${s.orb} ${s.orb1}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orb2}`} aria-hidden="true" />
+        <div className={`${s.wrap} ${s.heroIn} ${s.heroLayer}`}>
+          <span className={`${s.tag} ${s.fadeUp}`}>{c.hero.badge}</span>
           <h1 className={s.h1}>
-            {variant === "legacy" ? "단순 키워드 매칭을 넘어," : "확인되지 않은 문장은"}
+            <Words text={variant === "legacy" ? "단순 키워드 매칭을 넘어," : "확인되지 않은 문장은"} wordClass={s.word} delay={100} />
             <br />
             <Typed words={typed} />
           </h1>
-          <p className={s.sub}>{c.hero.sub}</p>
-          <div className={s.acts}>
+          <p className={`${s.sub} ${s.fadeUp}`} style={{ animationDelay: "520ms" }}>{c.hero.sub}</p>
+          <div className={`${s.acts} ${s.fadeUp}`} style={{ animationDelay: "640ms" }}>
             <Link href="/workbook" className={`${s.btn} ${s.lg}`}>{c.primary}</Link>
             <a href={MAILTO} className={`${s.ghost} ${s.lg}`}>{c.secondary}</a>
           </div>
-          <p className={s.note}>{c.hero.note}</p>
+          <p className={`${s.note} ${s.fadeUp}`} style={{ animationDelay: "720ms" }}>{c.hero.note}</p>
+          <div className={s.fadeUp} style={{ animationDelay: "820ms" }}><ScanDoc /></div>
         </div>
       </section>
 

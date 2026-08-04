@@ -7,6 +7,7 @@ import s from "./b.module.css";
 import { HeaderControls } from "./chrome";
 import { BA, DEMO, getCopy } from "./copy";
 import { MAILTO, useAutoRotate, useCountUp, useInView, useTheme, type Variant } from "./hooks";
+import { Words, useMouseGlow, useTypeLoop } from "./hero-fx";
 
 const KEYS = [s.k1, s.k2, s.k3];
 
@@ -23,8 +24,11 @@ export function ConceptB({ variant = "new" }: { variant?: Variant }) {
   const stats = useInView<HTMLDivElement>("");
   const [open, setOpen] = useState(0);
   const [after, setAfter] = useState(true);
-  const demo = useAutoRotate(DEMO.length);
+  const demo = useAutoRotate(DEMO.length, 5200);
   const d = DEMO[demo.i];
+  const glow = useMouseGlow<HTMLElement>();
+  const typedSeed = useTypeLoop([d.seed], 70, 30, 3200);
+  const bars = [38, 62, 48, 80, 56, 92, 70];
 
   return (
     <div className={s.root} data-theme={theme}>
@@ -41,21 +45,27 @@ export function ConceptB({ variant = "new" }: { variant?: Variant }) {
         </div>
       </header>
 
-      <section className={s.hero}>
-        <div className={`${s.wrap} ${s.heroIn}`}>
+      <section className={s.hero} ref={glow}>
+        <span className={`${s.orb} ${s.orb1}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orb2}`} aria-hidden="true" />
+        <div className={`${s.wrap} ${s.heroIn} ${s.heroLayer}`}>
           <div>
-            <span className={s.tag}>{c.hero.badge}</span>
-            <h1 className={s.h1}>{c.hero.title[0]}<br />{c.hero.title[1]}</h1>
-            <p className={s.sub}>{c.hero.sub}</p>
-            <div className={s.acts}>
+            <span className={`${s.tag} ${s.fadeUp}`}>{c.hero.badge}</span>
+            <h1 className={s.h1}>
+              <Words text={c.hero.title[0]} wordClass={s.word} delay={100} />
+              <br />
+              <Words text={c.hero.title[1]} wordClass={s.word} delay={100 + c.hero.title[0].split(" ").length * 70} />
+            </h1>
+            <p className={`${s.sub} ${s.fadeUp}`} style={{ animationDelay: "580ms" }}>{c.hero.sub}</p>
+            <div className={`${s.acts} ${s.fadeUp}`} style={{ animationDelay: "700ms" }}>
               <Link href="/workbook" className={`${s.btn} ${s.lg}`}>{c.primary}</Link>
               <a href={MAILTO} className={`${s.ghost} ${s.lg}`}>{c.secondary}</a>
             </div>
-            <p className={s.note}>{c.hero.note}</p>
+            <p className={`${s.note} ${s.fadeUp}`} style={{ animationDelay: "780ms" }}>{c.hero.note}</p>
           </div>
 
-          {/* 히어로 동적 요소 — 업종이 자동으로 넘어가고, 탭을 누르면 멈춥니다 */}
-          <div className={s.panel}>
+          {/* 히어로 동적 요소 — 키워드가 찍히고, 세 갈래가 선을 따라 뻗어 나갑니다 */}
+          <div className={`${s.panel} ${s.fadeUp}`} style={{ animationDelay: "300ms" }}>
             <div className={s.panelHd}>
               <span>확장 결과</span>
               <div className={s.tabs}>
@@ -65,15 +75,23 @@ export function ConceptB({ variant = "new" }: { variant?: Variant }) {
                 ))}
               </div>
             </div>
-            <div className={s.split} key={demo.i}>
+            <div className={s.seedLive} key={`seed-${demo.i}`}>
+              <span>광고주가 제공한 키워드</span>
+              <b>{typedSeed}<i className={s.tick} /></b>
+            </div>
+            <div className={`${s.split} ${s.branch}`} key={demo.i}>
               {d.hints.map((h, i) => (
-                <div className={s.splitRow} key={h.type} style={{ animationDelay: `${i * 140}ms` }}>
+                <div className={s.splitRow} key={h.type} style={{ animationDelay: `${300 + i * 220}ms` }}>
                   <span className={`${s.splitKey} ${KEYS[i]}`}>{h.title}</span>
                   <p>{h.text}</p>
                 </div>
               ))}
             </div>
-            <p className={s.seed}>광고주가 제공한 키워드<b>{d.seed}</b></p>
+            <div className={s.miniChart} key={`chart-${demo.i}`} aria-hidden="true">
+              {bars.map((h, i) => (
+                <span className={s.miniBar} key={i} style={{ height: `${h}%`, animationDelay: `${600 + i * 70}ms` }} />
+              ))}
+            </div>
           </div>
         </div>
       </section>

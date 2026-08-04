@@ -143,3 +143,48 @@
 @media (prefers-reduced-motion: reduce) {
   .splitRow { opacity: 1 !important; animation: none !important; }
 }
+
+/* ---------- 히어로 연출 ---------- */
+.hero { position: relative; overflow: hidden; --mx: 50%; --my: 30%; }
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(460px 460px at var(--mx) var(--my), var(--acs), transparent 70%); transition: background .18s ease; }
+.orb { position: absolute; border-radius: 50%; filter: blur(74px); opacity: .42; pointer-events: none; z-index: 0; }
+.orb1 { width: 460px; height: 460px; left: -8%; top: -20%; background: var(--ac); animation: drift1 19s ease-in-out infinite; }
+.orb2 { width: 400px; height: 400px; right: -8%; top: 4%; background: var(--ac2); animation: drift2 24s ease-in-out infinite; }
+@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,50px) scale(1.16); } }
+@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,70px) scale(.86); } }
+.heroLayer { position: relative; z-index: 1; }
+.word { display: inline-block; opacity: 0; transform: translateY(28px) rotate(2deg); animation: wordUp .62s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes wordUp { to { opacity: 1; transform: none; } }
+.fadeUp { opacity: 0; transform: translateY(16px); animation: wordUp .6s ease forwards; }
+.spin { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--line2); border-top-color: var(--ac); animation: spin .7s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .word, .fadeUp { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .orb1, .orb2, .spin { animation: none !important; }
+  .hero::before { display: none; }
+}
+
+/* 확장 패널 — 씨앗에서 세 갈래로 뻗는 커넥터 */
+.seedLive { border: 1px solid var(--line2); background: var(--acs); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+.seedLive span { display: block; color: var(--tx3); font-size: 12.5px; font-weight: 800; letter-spacing: .05em; }
+.seedLive b { display: block; margin-top: 8px; font-size: 19px; font-weight: 700; letter-spacing: -.02em; min-height: 1.4em; }
+.tick { display: inline-block; width: 2px; height: .95em; background: var(--ac); margin-left: 3px; vertical-align: -2px; animation: caret 1s step-end infinite; }
+@keyframes caret { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+.branch { position: relative; padding-left: 26px; }
+.branch::before { content: ""; position: absolute; left: 9px; top: -6px; bottom: 22px; width: 2px; background: var(--line2);
+  transform-origin: top; transform: scaleY(0); animation: growY .5s ease forwards; }
+@keyframes growY { to { transform: scaleY(1); } }
+.splitRow::before { content: ""; position: absolute; left: -17px; width: 15px; height: 2px; background: var(--line2);
+  transform-origin: left; transform: scaleX(0); animation: growX .35s ease forwards; }
+.splitRow { position: relative; }
+.miniChart { display: flex; align-items: flex-end; gap: 5px; height: 44px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.miniBar { flex: 1; border-radius: 3px 3px 0 0; background: var(--ac); opacity: .75; transform-origin: bottom; animation: barGrow .9s cubic-bezier(.2,.8,.3,1) forwards; transform: scaleY(0); }
+@keyframes barGrow { to { transform: scaleY(1); } }
+@keyframes growX { to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .branch::before, .splitRow::before, .miniBar { transform: none !important; animation: none !important; }
+  .tick { animation: none; }
+}
+
+.root[data-theme="light"] .orb { opacity: .22; filter: blur(90px); }

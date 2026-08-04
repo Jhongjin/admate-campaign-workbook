@@ -1,19 +1,55 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import s from "./e.module.css";
 import { HeaderControls } from "./chrome";
 import { getCopy, REVIEW_ROWS } from "./copy";
 import { MAILTO, useInView, useTheme, type Variant } from "./hooks";
+import { Words, useLoopProgress, useMouseGlow } from "./hero-fx";
 
 /* 시안 E — Agentive형 · 제품 데모 화법
    결과물(검수 파일)을 먼저 보여주고, 그것이 나오기까지를 뒤에서 설명합니다. */
+
+/** 검수 파일 목업 — 행마다 상태가 검수 중에서 결과로 바뀝니다. */
+function ReviewMock() {
+  const [n, setN] = useState(0);
+  const progress = useLoopProgress(2400);
+  useEffect(() => {
+    const t = window.setInterval(() => setN((v) => (v + 1) % (REVIEW_ROWS.length + 2)), 800);
+    return () => window.clearInterval(t);
+  }, []);
+  const done = Math.min(n, REVIEW_ROWS.length);
+  return (
+    <div className={s.mock} aria-hidden="true">
+      <div className={s.mockBar}><i /><i /><i /><span>검수 파일 · 광고 문안</span></div>
+      <div className={s.mockTop}>
+        <div><b>{done} / {REVIEW_ROWS.length}</b><small>검수 완료</small></div>
+        <span className={s.mockBar2}><span style={{ width: `${progress}%` }} /></span>
+      </div>
+      <div className={s.tableHd}>
+        <span>광고그룹</span><span>제목</span><span>본문</span><span>상태</span>
+      </div>
+      {REVIEW_ROWS.map((r, i) => (
+        <div className={s.tableRow} key={i} style={{ animationDelay: `${i * 160 + 300}ms` }}>
+          <span className={s.grp}>{r.g}</span>
+          <div><p>{r.t}</p></div>
+          <div><p>{r.c}</p></div>
+          {i < n
+            ? <span className={`${s.st} ${s.stFlip} ${r.st === "통과" ? s.stOk : s.stWarn}`} key={`f${n}`}>{r.st}</span>
+            : <span className={`${s.st} ${s.stPend}`}>검수 중</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function ConceptE({ variant = "new" }: { variant?: Variant }) {
   const c = getCopy(variant);
   const { theme, toggle } = useTheme("e");
   const alt = useInView<HTMLDivElement>(s.in);
+  const glow = useMouseGlow<HTMLElement>();
   const steps = c.steps.slice(0, 3);
   return (
     <div className={s.root} data-theme={theme}>
@@ -30,34 +66,23 @@ export function ConceptE({ variant = "new" }: { variant?: Variant }) {
         </div>
       </header>
 
-      <section className={s.hero}>
-        <div className={s.wrap}>
-          <span className={s.tag}>{c.hero.badge}</span>
+      <section className={s.hero} ref={glow}>
+        <span className={`${s.orb} ${s.orb1}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orb2}`} aria-hidden="true" />
+        <div className={`${s.wrap} ${s.heroLayer}`}>
+          <span className={`${s.tag} ${s.fadeUp}`}>{c.hero.badge}</span>
           <h1 className={s.h1}>
-            {variant === "legacy" ? "단순 키워드 매칭을 넘어," : "받아보실 결과물은"}
-            <br /><em>{variant === "legacy" ? "대화의 맥락을 설계하다" : "이렇게 전달됩니다"}</em>
+            <Words text={variant === "legacy" ? "단순 키워드 매칭을 넘어," : "받아보실 결과물은"} wordClass={s.word} delay={100} />
+            <br /><em><Words text={variant === "legacy" ? "대화의 맥락을 설계하다" : "이렇게 전달됩니다"} wordClass={s.word} delay={340} /></em>
           </h1>
-          <p className={s.sub}>{c.hero.sub}</p>
-          <div className={s.acts}>
+          <p className={`${s.sub} ${s.fadeUp}`} style={{ animationDelay: "600ms" }}>{c.hero.sub}</p>
+          <div className={`${s.acts} ${s.fadeUp}`} style={{ animationDelay: "700ms" }}>
             <Link href="/workbook" className={`${s.btn} ${s.lg}`}>{c.primary}</Link>
             <a href={MAILTO} className={`${s.ghost} ${s.lg}`}>{c.secondary}</a>
           </div>
-          <p className={s.note}>{c.hero.note}</p>
+          <p className={`${s.note} ${s.fadeUp}`} style={{ animationDelay: "780ms" }}>{c.hero.note}</p>
 
-          <div className={s.mock} aria-hidden="true">
-            <div className={s.mockBar}><i /><i /><i /><span>검수 파일 · 광고 문안</span></div>
-            <div className={s.tableHd}>
-              <span>광고그룹</span><span>제목</span><span>본문</span><span>상태</span>
-            </div>
-            {REVIEW_ROWS.map((r, i) => (
-              <div className={s.tableRow} key={i} style={{ animationDelay: `${i * 160 + 300}ms` }}>
-                <span className={s.grp}>{r.g}</span>
-                <div><p>{r.t}</p></div>
-                <div><p>{r.c}</p></div>
-                <span className={`${s.st} ${r.st === "통과" ? s.stOk : s.stWarn}`}>{r.st}</span>
-              </div>
-            ))}
-          </div>
+          <div className={s.fadeUp} style={{ animationDelay: "860ms" }}><ReviewMock /></div>
         </div>
       </section>
 

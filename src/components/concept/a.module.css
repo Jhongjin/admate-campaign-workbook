@@ -19,9 +19,21 @@
   --shadow: 0 30px 70px rgba(76,29,149,.12);
 }
 .root ::selection { background: var(--acs); }
-.glow { position: relative; }
-.glow::before { content: ""; position: absolute; inset: -20% 10% auto 10%; height: 420px;
-  background: radial-gradient(60% 60% at 50% 0%, var(--acs), transparent 70%); pointer-events: none; }
+.glow { position: relative; --mx: 50%; --my: 0%; overflow: hidden; }
+/* 커서를 따라오는 광원 */
+.glow::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(420px 420px at var(--mx) var(--my), var(--acs), transparent 70%); transition: background .18s ease; }
+/* 떠다니는 배경 구체 */
+.orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5; pointer-events: none; z-index: 0; }
+.orb1 { width: 480px; height: 480px; left: -8%; top: -18%; background: var(--ac); animation: drift1 18s ease-in-out infinite; }
+.orb2 { width: 400px; height: 400px; right: -6%; top: 8%; background: var(--ac2); animation: drift2 22s ease-in-out infinite; }
+@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(70px,60px) scale(1.14); } }
+@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-60px,80px) scale(.88); } }
+.heroIn { position: relative; z-index: 1; }
+/* 헤드라인 어절이 차례로 올라옵니다 */
+.word { display: inline-block; opacity: 0; transform: translateY(26px) rotate(2deg); animation: wordUp .62s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes wordUp { to { opacity: 1; transform: none; } }
+.fadeUp { opacity: 0; transform: translateY(16px); animation: wordUp .6s ease forwards; }
 .wrap { position: relative; width: min(1200px, calc(100% - 64px)); margin: 0 auto; }
 
 .nav { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 86%, transparent);
@@ -51,7 +63,9 @@
 .hero { padding: 96px 0 84px; text-align: center; }
 .pill { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line2); background: var(--acs);
   color: var(--ac2); border-radius: 999px; padding: 9px 18px; font-size: 14px; font-weight: 700; }
-.pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--ac2); font-style: normal; animation: blink 2s ease infinite; }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--ac2); font-style: normal; position: relative; }
+.pill i::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--ac2); animation: ping 1.9s ease-out infinite; }
+@keyframes ping { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 .h1 { margin: 26px auto 22px; max-width: 15em; font-size: clamp(38px, 3.4vw + 1rem, 66px);
   line-height: 1.16; letter-spacing: -.045em; font-weight: 800; }
@@ -71,6 +85,21 @@
 .sideItem { border-radius: 8px; padding: 10px 12px; color: var(--tx3); font-size: 13.5px; font-weight: 600; transition: .25s ease; }
 .sideOn { background: var(--acs); color: var(--ac2); }
 .consoleMain { padding: 18px 20px; display: grid; gap: 10px; }
+.consoleTop { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.consoleTop b { font-size: 26px; font-weight: 800; letter-spacing: -.03em; color: var(--ac2); }
+.consoleTop small { display: block; color: var(--tx3); font-size: 12.5px; font-weight: 600; }
+.topBar { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; margin-left: 8px; }
+.topBarFill { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--ac), var(--ac2)); }
+.sideOn { position: relative; }
+.sideOn::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--ac); }
+.log { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 12px; display: grid; gap: 6px; min-height: 76px; }
+.logLine { display: grid; grid-template-columns: 62px 1fr; gap: 10px; align-items: baseline; font-size: 12.5px; color: var(--tx3);
+  opacity: 0; animation: logIn .4s ease forwards; }
+.logLine b { color: var(--ac2); font-weight: 700; }
+.logLine span { color: var(--tx2); font-weight: 500; }
+@keyframes logIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.spin { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--line2); border-top-color: var(--ac2); animation: spin .7s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .jobRow { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
   border: 1px solid var(--line); border-radius: 12px; background: var(--sunk); padding: 14px 16px; transition: .3s ease; }
 .jobRow p { margin: 0; font-size: 15px; color: var(--tx); }
@@ -81,7 +110,7 @@
 .bRun { background: var(--acs); color: var(--ac2); }
 .bWait { background: color-mix(in srgb, var(--tx3) 18%, transparent); color: var(--tx3); }
 .bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--line); overflow: hidden; }
-.barFill { display: block; height: 100%; background: var(--ac); transition: width .4s ease; }
+.barFill { display: block; height: 100%; background: linear-gradient(90deg, var(--ac), var(--ac2)); }
 
 .sec { padding: 100px 0; }
 .secAlt { background: var(--panel2); border-block: 1px solid var(--line); }
@@ -158,6 +187,7 @@
   .ctaBox { padding: 44px 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vCard, .fCard { opacity: 1 !important; transform: none !important; animation: none !important; }
-  .pill i { animation: none; }
+  .vCard, .fCard, .word, .fadeUp, .logLine { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .orb1, .orb2, .spin { animation: none !important; }
+  .pill i::after { animation: none; }
 }

@@ -116,3 +116,47 @@
 @media (prefers-reduced-motion: reduce) {
   .cell { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
+
+/* ---------- 히어로 연출 ---------- */
+.hero { position: relative; overflow: hidden; --mx: 50%; --my: 30%; }
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(460px 460px at var(--mx) var(--my), var(--acs), transparent 70%); transition: background .18s ease; }
+.orb { position: absolute; border-radius: 50%; filter: blur(74px); opacity: .42; pointer-events: none; z-index: 0; }
+.orb1 { width: 460px; height: 460px; left: -8%; top: -20%; background: var(--ac); animation: drift1 19s ease-in-out infinite; }
+.orb2 { width: 400px; height: 400px; right: -8%; top: 4%; background: var(--ac2); animation: drift2 24s ease-in-out infinite; }
+@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,50px) scale(1.16); } }
+@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,70px) scale(.86); } }
+.heroLayer { position: relative; z-index: 1; }
+.word { display: inline-block; opacity: 0; transform: translateY(28px) rotate(2deg); animation: wordUp .62s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes wordUp { to { opacity: 1; transform: none; } }
+.fadeUp { opacity: 0; transform: translateY(16px); animation: wordUp .6s ease forwards; }
+.spin { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--line2); border-top-color: var(--ac); animation: spin .7s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .word, .fadeUp { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .orb1, .orb2, .spin { animation: none !important; }
+  .hero::before { display: none; }
+}
+
+/* 히어로 아래를 흐르는 질문 티커 */
+.ticker { overflow: hidden; border-block: 1px solid var(--line); background: var(--card); padding: 14px 0; margin-bottom: 40px; }
+.tickerTrack { display: flex; gap: 10px; width: max-content; animation: marquee 34s linear infinite; }
+.ticker:hover .tickerTrack { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.tickerItem { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line); background: var(--bg);
+  border-radius: 999px; padding: 9px 18px 9px 10px; font-size: 14.5px; color: var(--ink2); white-space: nowrap; }
+.tickerItem b { border-radius: 999px; background: var(--acs); color: var(--ac); padding: 4px 10px; font-size: 11.5px; font-weight: 800; }
+/* 히어로 우측 카드 스택 */
+.heroGrid { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: 48px; align-items: center; }
+.stack { position: relative; height: 260px; }
+.stackCard { position: absolute; inset: 0; border: 1px solid var(--line); background: var(--card); border-radius: 18px;
+  padding: 26px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.09);
+  transition: transform .5s cubic-bezier(.2,.8,.3,1), opacity .5s ease; }
+.stackCard i { font-style: normal; color: var(--ac); font-size: 12px; font-weight: 800; letter-spacing: .1em; }
+.stackCard b { font-size: 21px; letter-spacing: -.03em; line-height: 1.35; }
+.stackCard p { margin: 0; color: var(--ink2); font-size: 15.5px; line-height: 1.7; }
+@media (max-width: 1000px) { .heroGrid { grid-template-columns: 1fr; gap: 36px; } .stack { height: 230px; } }
+@media (prefers-reduced-motion: reduce) { .tickerTrack { animation-duration: 90s; } }
+
+.orb { opacity: .16; filter: blur(90px); }
+.root[data-theme="dark"] .orb { opacity: .4; filter: blur(74px); }

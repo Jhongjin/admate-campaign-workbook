@@ -7,8 +7,17 @@ import s from "./a.module.css";
 import { HeaderControls } from "./chrome";
 import { getCopy } from "./copy";
 import { MAILTO, useInView, useTheme, type Variant } from "./hooks";
+import { Words, useLoopCount, useLoopProgress, useMouseGlow } from "./hero-fx";
 
 const SIDE = ["실행 현황", "광고그룹", "Context Hints", "문안", "검수 결과"];
+const LOGS = [
+  { t: "10:02", m: "광고그룹 분할 시작" },
+  { t: "10:02", m: "구매여정 6단계 매핑 완료" },
+  { t: "10:03", m: "Context Hints 36건 생성" },
+  { t: "10:03", m: "제목·본문 생성 중" },
+  { t: "10:04", m: "검수 에이전트 인계" },
+  { t: "10:04", m: "글자수 초과 2건 표시" },
+];
 const JOBS = [
   { t: "광고그룹 12개로 분할", s: "구매여정 6단계 · 세부 의도 기준" },
   { t: "Context Hints 36건 확장", s: "검색어형 12 · 질문형 12 · 상황형 12" },
@@ -19,13 +28,22 @@ const JOBS = [
 /** 히어로 콘솔 — 작업이 차례로 끝나는 모습을 반복 재생합니다. */
 function Console() {
   const [step, setStep] = useState(0);
+  const [logN, setLogN] = useState(1);
+  const progress = useLoopProgress(2200);
+  const made = useLoopCount(48, 2200, 600);
+
   useEffect(() => {
-    const t = window.setInterval(() => setStep((v) => (v + 1) % (JOBS.length + 1)), 1800);
+    const t = window.setInterval(() => setStep((v) => (v + 1) % (JOBS.length + 1)), 2200);
     return () => window.clearInterval(t);
   }, []);
+  useEffect(() => {
+    const t = window.setInterval(() => setLogN((v) => (v % LOGS.length) + 1), 900);
+    return () => window.clearInterval(t);
+  }, []);
+
   return (
     <div className={s.console} aria-hidden="true">
-      <div className={s.consoleBar}><span /><span /><span /><b>운영 콘솔</b></div>
+      <div className={s.consoleBar}><span /><span /><span /><b>운영 콘솔 · 실시간</b></div>
       <div className={s.consoleBody}>
         <div className={s.consoleSide}>
           {SIDE.map((x, i) => (
@@ -33,6 +51,11 @@ function Console() {
           ))}
         </div>
         <div className={s.consoleMain}>
+          <div className={s.consoleTop}>
+            <div><b>{made}</b><small>생성된 문안</small></div>
+            <span className={s.topBar}><span className={s.topBarFill} style={{ width: `${progress}%` }} /></span>
+          </div>
+
           {JOBS.map((j, i) => {
             const done = i < step;
             const running = i === step;
@@ -40,12 +63,20 @@ function Console() {
               <div className={`${s.jobRow} ${running ? s.jobActive : ""}`} key={j.t}>
                 <p>{j.t}<small>{j.s}</small></p>
                 <span className={`${s.badge} ${done ? s.bDone : running ? s.bRun : s.bWait}`}>
-                  {done ? "완료" : running ? "진행" : "대기"}
+                  {done ? "완료" : running ? <><span className={s.spin} /> 진행</> : "대기"}
                 </span>
-                {running && <span className={s.bar}><span className={s.barFill} style={{ width: "62%" }} /></span>}
+                {running && <span className={s.bar}><span className={s.barFill} style={{ width: `${progress}%` }} /></span>}
               </div>
             );
           })}
+
+          <div className={s.log}>
+            {LOGS.slice(0, logN).slice(-3).map((l, i) => (
+              <div className={s.logLine} key={`${l.m}-${logN}`} style={{ animationDelay: `${i * 60}ms` }}>
+                <b>{l.t}</b><span>{l.m}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -55,6 +86,7 @@ function Console() {
 export function ConceptA({ variant = "new" }: { variant?: Variant }) {
   const c = getCopy(variant);
   const { theme, toggle } = useTheme("a");
+  const glow = useMouseGlow<HTMLElement>();
   const v = useInView<HTMLDivElement>(s.in);
   const f = useInView<HTMLDivElement>(s.in);
   const [open, setOpen] = useState(0);
@@ -72,19 +104,23 @@ export function ConceptA({ variant = "new" }: { variant?: Variant }) {
         </div>
       </header>
 
-      <section className={`${s.hero} ${s.glow}`}>
-        <div className={s.wrap}>
-          <span className={s.pill}><i />{c.hero.badge}</span>
+      <section className={`${s.hero} ${s.glow}`} ref={glow}>
+        <span className={`${s.orb} ${s.orb1}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orb2}`} aria-hidden="true" />
+        <div className={`${s.wrap} ${s.heroIn}`}>
+          <span className={`${s.pill} ${s.fadeUp}`}><i />{c.hero.badge}</span>
           <h1 className={s.h1}>
-            {c.hero.title[0]}<br />{c.hero.title[1]}
+            <Words text={c.hero.title[0]} wordClass={s.word} delay={120} />
+            <br />
+            <Words text={c.hero.title[1]} wordClass={s.word} delay={120 + c.hero.title[0].split(" ").length * 70} />
           </h1>
-          <p className={s.sub}>{c.hero.sub}</p>
-          <div className={s.acts}>
+          <p className={`${s.sub} ${s.fadeUp}`} style={{ animationDelay: "620ms" }}>{c.hero.sub}</p>
+          <div className={`${s.acts} ${s.fadeUp}`} style={{ animationDelay: "740ms" }}>
             <Link href="/workbook" className={`${s.btn} ${s.lg}`}>{c.primary}</Link>
             <a href={MAILTO} className={`${s.ghost} ${s.lg}`}>{c.secondary}</a>
           </div>
-          <p className={s.note}>{c.hero.note}</p>
-          <Console />
+          <p className={`${s.note} ${s.fadeUp}`} style={{ animationDelay: "820ms" }}>{c.hero.note}</p>
+          <div className={s.fadeUp} style={{ animationDelay: "900ms" }}><Console /></div>
         </div>
       </section>
 

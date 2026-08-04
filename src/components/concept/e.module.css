@@ -138,3 +138,37 @@
 @media (prefers-reduced-motion: reduce) {
   .tableRow, .altRow { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
+
+/* ---------- 히어로 연출 ---------- */
+.hero { position: relative; overflow: hidden; --mx: 50%; --my: 30%; }
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(460px 460px at var(--mx) var(--my), var(--acs), transparent 70%); transition: background .18s ease; }
+.orb { position: absolute; border-radius: 50%; filter: blur(74px); opacity: .42; pointer-events: none; z-index: 0; }
+.orb1 { width: 460px; height: 460px; left: -8%; top: -20%; background: var(--ac); animation: drift1 19s ease-in-out infinite; }
+.orb2 { width: 400px; height: 400px; right: -8%; top: 4%; background: var(--ac2); animation: drift2 24s ease-in-out infinite; }
+@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,50px) scale(1.16); } }
+@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,70px) scale(.86); } }
+.heroLayer { position: relative; z-index: 1; }
+.word { display: inline-block; opacity: 0; transform: translateY(28px) rotate(2deg); animation: wordUp .62s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes wordUp { to { opacity: 1; transform: none; } }
+.fadeUp { opacity: 0; transform: translateY(16px); animation: wordUp .6s ease forwards; }
+.spin { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--line2); border-top-color: var(--ac); animation: spin .7s linear infinite; vertical-align: -1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .word, .fadeUp { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .orb1, .orb2, .spin { animation: none !important; }
+  .hero::before { display: none; }
+}
+
+/* 검수 파일 — 상태가 검수 중에서 통과로 바뀝니다 */
+.mockTop { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.mockTop b { font-size: 22px; font-weight: 800; letter-spacing: -.03em; color: var(--ac2); }
+.mockTop small { display: block; color: var(--tx3); font-size: 12.5px; font-weight: 600; }
+.mockBar2 { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; max-width: 300px; }
+.mockBar2 span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--ac), var(--ok)); }
+.stPend { background: color-mix(in srgb, var(--tx3) 18%, transparent); color: var(--tx3); }
+.stFlip { animation: flip .45s cubic-bezier(.2,1.4,.4,1); }
+@keyframes flip { 0% { transform: scale(.72); opacity: .4; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .stFlip { animation: none; } }
+
+.root[data-theme="light"] .orb { opacity: .22; filter: blur(90px); }
