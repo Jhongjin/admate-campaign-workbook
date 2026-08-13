@@ -3,87 +3,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
-
-type Contact = {
-  partnerType: "advertiser" | "agency";
-  company: string;
-  brand: string;
-  name: string;
-  email: string;
-  phone: string;
-  advertiser: string;
-  hasAgency: boolean;
-  agencyCompany: string;
-  agencyName: string;
-  agencyEmail: string;
-  agencyPhone: string;
-};
-
-type Campaign = {
-  id: string;
-  name: string;
-  budget: string;
-  budgetType: "daily" | "lifetime";
-  startDate: string;
-  endDate: string;
-  objective: "views" | "clicks";
-  country: string;
-};
-
-type Product = {
-  id: string;
-  campaignId: string;
-  brand: string;
-  name: string;
-  summary: string;
-  features: string;
-  benefit: string;
-  difference: string;
-  target: string;
-  need: string;
-  conditions: string;
-  keyMessage: string;
-  banned: string;
-  url: string;
-  priority: "high" | "normal" | "low";
-  notes: string;
-};
-
-type Creative = {
-  id: string;
-  campaignId: string;
-  productId: string;
-  fileName: string;
-  imageUrl: string;
-  message: string;
-  target: string;
-  scope: string;
-  startDate: string;
-  endDate: string;
-  url: string;
-  notice: string;
-};
-
-type Policy = {
-  tone: string;
-  competitor: "yes" | "limited" | "no";
-  comparison: "yes" | "limited" | "no";
-  legal: string;
-  banned: string;
-  excluded: string;
-  notes: string;
-  references: string;
-  customerSources: string;
-  keywords: string;
-};
-
-type WorkbookDraft = {
-  contact: Contact;
-  campaigns: Campaign[];
-  products: Product[];
-  creatives: Creative[];
-  policy: Policy;
-};
+import type {
+  Campaign,
+  Contact,
+  Creative,
+  Policy,
+  Product,
+  WorkbookDraft,
+} from "@/lib/workbook/types";
 
 const steps = [
   ["담당자 정보", "확인과 보완 연락에 필요한 정보"],
@@ -93,6 +20,22 @@ const steps = [
   ["표현 기준", "브랜드·법무 기준과 참고자료"],
   ["확인·제출", "누락을 확인하고 제출 준비"],
 ] as const;
+
+const CONSENTS = [
+  "입력한 정보가 사실과 다르지 않음을 확인했습니다.",
+  "이미지와 자료를 광고 제작에 사용할 권한이 있습니다.",
+  "소비자 개인정보를 삭제하거나 비식별 처리했습니다.",
+  "개인정보 수집 및 이용 안내를 확인했습니다.",
+] as const;
+
+type SubmitResult = {
+  receiptNo: string;
+  fileName: string;
+  mailTo: string;
+  mailSent: boolean;
+  file: string | null;
+  notice: string | null;
+};
 
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
@@ -182,7 +125,10 @@ export function CampaignWorkbook() {
   const [hydrated, setHydrated] = useState(false);
   const [saveLabel, setSaveLabel] = useState("임시저장 준비");
   const [stepError, setStepError] = useState("");
-  const [completed, setCompleted] = useState(false);
+  const [consents, setConsents] = useState<boolean[]>(() => CONSENTS.map(() => false));
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -282,7 +228,55 @@ export function CampaignWorkbook() {
     window.localStorage.removeItem("admate-campaign-workbook-draft");
     setDraft(initialDraft());
     setStep(0);
-    setCompleted(false);
+    setConsents(CONSENTS.map(() => false));
+    setResult(null);
+    setSubmitError("");
+  };
+
+  const allConsented = consents.every(Boolean);
+
+  /** 워크북 xlsx 를 만들어 담당자 메일로 보냅니다. */
+  const submit = async () => {
+    setSubmitError("");
+    setSending(true);
+    try {
+      const response = await fetch("/api/workbook/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft, consents: CONSENTS.filter((_, i) => consents[i]) }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        const detail = Array.isArray(data.problems) && data.problems.length
+          ? ` (${data.problems.slice(0, 5).join(", ")})`
+          : "";
+        setSubmitError(`${data.error ?? "제출에 실패했습니다."}${detail}`);
+        return;
+      }
+      setResult(data as SubmitResult);
+      // 제출이 끝났으니 이 브라우저의 임시 저장본은 지웁니다.
+      window.localStorage.removeItem("admate-campaign-workbook-draft");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setSubmitError("네트워크 오류로 제출하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  /** 메일 발송이 안 됐을 때 같은 파일을 브라우저에서 내려받습니다. */
+  const downloadFile = () => {
+    if (!result?.file) return;
+    const bytes = Uint8Array.from(atob(result.file), (ch) => ch.charCodeAt(0));
+    const blob = new Blob([bytes], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = result.fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const addCampaign = () => setDraft((current) => ({ ...current, campaigns: [...current.campaigns, emptyCampaign()] }));
@@ -546,13 +540,39 @@ export function CampaignWorkbook() {
               {requiredMissing.length > 0 && <div className="missing-list"><h3>먼저 확인해 주세요</h3>{requiredMissing.map((item) => <span key={item}>{item}</span>)}</div>}
               <div className="consent-box">
                 <h3>제출 전 확인</h3>
-                <label><input type="checkbox" /> 입력한 정보가 사실과 다르지 않음을 확인했습니다.</label>
-                <label><input type="checkbox" /> 이미지와 자료를 광고 제작에 사용할 권한이 있습니다.</label>
-                <label><input type="checkbox" /> 소비자 개인정보를 삭제하거나 비식별 처리했습니다.</label>
-                <label><input type="checkbox" /> 개인정보 수집 및 이용 안내를 확인했습니다.</label>
+                {CONSENTS.map((text, index) => (
+                  <label key={text}>
+                    <input
+                      type="checkbox"
+                      checked={consents[index]}
+                      onChange={(e) => setConsents((current) => current.map((v, i) => (i === index ? e.target.checked : v)))}
+                    />{" "}
+                    {text}
+                  </label>
+                ))}
               </div>
-              <div className="build-notice"><strong>현재는 화면 검증용 초기 버전입니다.</strong><p>서버 저장·파일 업로드·실제 접수 기능은 다음 개발 단계에서 연결됩니다. 지금 입력한 내용은 이 브라우저에만 임시 저장됩니다.</p></div>
-              {completed && <div className="completion-message" role="status"><strong>화면 검토가 완료되었습니다.</strong><p>실제 접수 기능이 연결되면 이 위치에서 접수번호와 제출본 다운로드를 제공합니다.</p></div>}
+              <div className="build-notice">
+                <strong>제출하면 통합워크북 파일이 만들어져 담당자에게 전달됩니다.</strong>
+                <p>입력 내용이 ChatGPT 광고 통합워크북(xlsx) 양식에 그대로 채워져 openai@nasmedia.co.kr 로 발송됩니다. 제출과 동시에 광고가 게시되지는 않습니다.</p>
+              </div>
+
+              {submitError && <div className="step-error" role="alert"><strong>제출하지 못했습니다.</strong><p>{submitError}</p></div>}
+
+              {result && (
+                <div className="completion-message" role="status">
+                  <strong>{result.mailSent ? "제출이 완료되었습니다." : "워크북 파일이 준비되었습니다."}</strong>
+                  <p>
+                    접수번호 <b>{result.receiptNo}</b>
+                    {result.mailSent
+                      ? ` · ${result.mailTo} 로 발송했습니다. 담당자가 내용을 확인한 뒤 연락드립니다.`
+                      : ` · ${result.notice ?? ""} 아래에서 파일을 내려받아 ${result.mailTo} 로 보내주세요.`}
+                  </p>
+                  <p className="completion-file">{result.fileName}</p>
+                  {!result.mailSent && result.file && (
+                    <button className="primary-button" type="button" onClick={downloadFile}>워크북 파일 내려받기</button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -561,11 +581,22 @@ export function CampaignWorkbook() {
           <nav className="form-navigation" aria-label="작성 단계 이동">
             <button className="secondary-button" type="button" onClick={previous} disabled={step === 0}>이전</button>
             <span>{step + 1} / {steps.length}</span>
-            {step < steps.length - 1 ? <button className="primary-button" type="button" onClick={next}>저장하고 다음</button> : <button className="primary-button" type="button" disabled={requiredMissing.length > 0} onClick={() => setCompleted(true)}>입력 내용 확인 완료</button>}
+            {step < steps.length - 1 ? (
+              <button className="primary-button" type="button" onClick={next}>저장하고 다음</button>
+            ) : (
+              <button
+                className="primary-button"
+                type="button"
+                disabled={requiredMissing.length > 0 || !allConsented || sending || Boolean(result)}
+                onClick={submit}
+              >
+                {sending ? "제출하는 중…" : result ? "제출 완료" : "제출하기"}
+              </button>
+            )}
           </nav>
         </section>
       </main>
-      <footer className="site-footer"><span>© kt nasmedia. All rights reserved.</span><span>자료 제출 문의 · 담당자 연결 준비 중</span></footer>
+      <footer className="site-footer"><span>© kt nasmedia. All rights reserved.</span><span>자료 제출 문의 · <a href="mailto:openai@nasmedia.co.kr">openai@nasmedia.co.kr</a></span></footer>
     </div>
   );
 }

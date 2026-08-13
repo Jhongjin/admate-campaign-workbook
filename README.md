@@ -9,8 +9,9 @@
 - 여러 캠페인·상품·이미지 추가 및 연결
 - 브라우저 자동 임시저장과 제출 전 누락 확인
 - 반응형·키보드 접근 가능한 기본 UI
+- 제출 시 통합워크북 xlsx 생성 후 담당자 메일 발송
 
-현재 버전은 화면과 입력 흐름 검증용 MVP입니다. 서버 저장, 실제 파일 업로드, 인증, 접수 및 XLSX 출력은 다음 단계에서 연결합니다.
+서버 저장, 실제 이미지 파일 업로드, 인증은 다음 단계입니다.
 
 ## 실행
 
@@ -25,3 +26,40 @@ npm run dev
 npm run lint
 npm run build
 ```
+
+## 제출 → 워크북 발송
+
+`/workbook` 마지막 단계에서 제출하면 `POST /api/workbook/submit` 이
+입력값을 "ChatGPT 광고 작업용 통합 워크북" 양식에 채워 xlsx 로 만들고
+`openai@nasmedia.co.kr` 로 메일을 보냅니다.
+
+관련 파일:
+
+| 파일 | 역할 |
+| --- | --- |
+| `src/lib/workbook/types.ts` | 폼과 서버가 공유하는 자료 구조 |
+| `src/lib/workbook/template.ts` | 어떤 값이 어느 시트·어느 칸에 들어가는지 |
+| `src/lib/workbook/template.xlsx` | 실물 통합워크북 빈 양식 |
+| `src/lib/workbook/template-data.ts` | 위 파일을 base64 로 구운 것 (자동 생성) |
+| `src/lib/workbook/build-xlsx.ts` | 양식을 열어 값을 채우는 로직 |
+| `src/lib/workbook/mailer.ts` | Resend 발송 |
+
+`campaigns` / `상품·브리프` / `이미지소재` / `정책·참고자료` /
+`(추가자료)고객질문·검색데이터` / `(추가자료)주력키워드` 시트를 채우고,
+`adgroups` · `ads` 는 AI 에이전트가 나중에 채우므로 비워 둡니다.
+폼에 없는 담당자 정보는 `담당자·제출정보` 시트를 한 장 덧붙여 기록합니다.
+
+### 환경변수
+
+`.env.example` 참고. `RESEND_API_KEY` 가 없으면 메일 대신
+브라우저에서 파일을 내려받도록 안내하므로 로컬에서도 그대로 동작합니다.
+
+### 양식이 개정되면
+
+```bash
+node scripts/make-blank-template.mjs "<새 워크북.xlsx>"   # 샘플 값을 지워 빈 양식 저장
+node scripts/build-template.mjs                          # 번들용 모듈 다시 굽기
+```
+
+시트명·컬럼 문구가 바뀌었다면 `src/lib/workbook/template.ts` 도 함께 고칩니다.
+컬럼은 이름으로 찾으므로 순서가 바뀌는 것은 코드 수정 없이 따라갑니다.

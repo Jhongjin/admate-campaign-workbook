@@ -152,6 +152,9 @@ button { color: inherit; }
 .completion-message { padding: 17px; border: 1px solid #b8e2d1; background: var(--green-soft); border-radius: 12px; }
 .completion-message strong { color: var(--green); font-size: 13px; }
 .completion-message p { margin: 5px 0 0; color: #49725f; font-size: 11px; }
+.completion-message b { color: var(--green); font-variant-numeric: tabular-nums; }
+.completion-file { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; word-break: break-all; }
+.completion-message .primary-button { margin-top: 13px; }
 .step-error { margin: 0 38px 20px; padding: 14px 16px; border: 1px solid #f2b7bd; border-radius: 11px; background: var(--red-soft); color: var(--red-dark); }
 .step-error strong { font-size: 11.5px; }
 .step-error p { margin: 4px 0 0; font-size: 10.5px; }
@@ -546,6 +549,7 @@ button { color: inherit; }
 .wb-dark .completion-message { background: rgba(55,213,161,.1); border-color: rgba(55,213,161,.3); }
 .wb-dark .completion-message strong { color: var(--wbd-mint); }
 .wb-dark .completion-message p { color: #7ec9ad; }
+.wb-dark .completion-message b { color: var(--wbd-mint); }
 .wb-dark .step-error { background: rgba(229,29,53,.12); border-color: rgba(229,29,53,.35); color: #ff97a3; }
 .wb-dark .step-error strong, .wb-dark .step-error p { color: #ff97a3; }
 
