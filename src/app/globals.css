@@ -503,6 +503,16 @@ button { color: inherit; }
 .wb-dark .control::placeholder { color: var(--wbd-dim); }
 .wb-dark .control:hover { border-color: rgba(148,163,184,.42); }
 .wb-dark .control:focus { border-color: var(--wbd-blue); box-shadow: 0 0 0 3px rgba(61,139,253,.18); }
+/* 날짜·시간 입력의 달력 아이콘과 선택 팝업을 어두운 화면에 맞춥니다.
+   color-scheme 만으로 브라우저가 아이콘을 밝게 그려 주고, 팝업도 다크로 열립니다. */
+.wb-dark { color-scheme: dark; }
+.wb-dark .control::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; transition: opacity .18s ease; }
+.wb-dark .control:hover::-webkit-calendar-picker-indicator,
+.wb-dark .control:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+/* 값이 비어 있을 때의 "연도-월-일" 안내는 입력값보다 흐리게 둡니다. */
+.wb-dark .control:not(:focus)::-webkit-datetime-edit-year-field:not([aria-valuenow]),
+.wb-dark .control:not(:focus)::-webkit-datetime-edit-month-field:not([aria-valuenow]),
+.wb-dark .control:not(:focus)::-webkit-datetime-edit-day-field:not([aria-valuenow]) { color: var(--wbd-dim); }
 .wb-dark .group-label { border-bottom-color: var(--wbd-line); }
 .wb-dark .group-label strong { color: #9cc4ff; }
 .wb-dark .group-label span { color: var(--wbd-muted); }
