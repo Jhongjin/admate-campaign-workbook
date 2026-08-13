@@ -109,12 +109,6 @@ button { color: inherit; }
 .repeat-head button { border: 1px solid #e0e4eb; border-radius: 8px; background: white; color: #7f8795; padding: 7px 10px; font-size: 10px; font-weight: 750; cursor: pointer; }
 .add-button { min-height: 52px; border: 1px dashed #aab7ca; border-radius: 13px; background: #fbfcfe; color: #40516c; font-size: 12px; font-weight: 800; cursor: pointer; }
 .add-button:hover { border-color: var(--navy-2); background: var(--blue-soft); }
-.upload-box { min-height: 138px; border: 1px dashed #a7b4c7; border-radius: 13px; background: #fafbfd; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; cursor: pointer; }
-.upload-box:hover { border-color: var(--navy-2); background: var(--blue-soft); }
-.upload-box input { position: absolute; opacity: 0; pointer-events: none; }
-.upload-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: white; border: 1px solid var(--line); color: var(--red); font-weight: 850; }
-.upload-box strong { font-size: 12px; }
-.upload-box small { color: var(--muted); font-size: 10px; }
 .optional-section { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
 .optional-section summary { list-style: none; padding: 17px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
 .optional-section summary::-webkit-details-marker { display: none; }
@@ -533,10 +527,6 @@ button { color: inherit; }
 .wb-dark .repeat-head button { background: var(--wbd-panel-2); border-color: rgba(148,163,184,.25); color: var(--wbd-muted); }
 .wb-dark .add-button { background: rgba(61,139,253,.06); border-color: rgba(148,163,184,.35); color: #9cc4ff; }
 .wb-dark .add-button:hover { border-color: var(--wbd-blue); background: rgba(61,139,253,.12); }
-.wb-dark .upload-box { background: var(--wbd-deep); border-color: rgba(148,163,184,.3); }
-.wb-dark .upload-box:hover { border-color: var(--wbd-blue); background: rgba(61,139,253,.08); }
-.wb-dark .upload-icon { background: var(--wbd-panel-2); border-color: var(--wbd-line); color: var(--wbd-blue); }
-.wb-dark .upload-box small { color: var(--wbd-muted); }
 .wb-dark .optional-section { border-color: var(--wbd-line); }
 .wb-dark .optional-section small { color: var(--wbd-muted); }
 .wb-dark .optional-section b { color: #7fb1fb; }

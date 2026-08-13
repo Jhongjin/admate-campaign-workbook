@@ -10,6 +10,7 @@
  */
 
 import type { Campaign, SubmissionMeta, WorkbookDraft } from "./types";
+import { fileNameFromUrl } from "./util";
 
 export type CellValue = string | number;
 
@@ -76,11 +77,11 @@ function num(value: string): CellValue {
   return Number.isFinite(n) ? n : value;
 }
 
-/** 파일명 확장자로 양식의 "파일 형식" 드롭다운 값을 정합니다. */
-function fileKind(fileName: string, imageUrl: string) {
-  const source = (fileName || imageUrl || "").toLowerCase();
-  if (/\.png(\?|$)/.test(source)) return "PNG";
-  if (/\.jpe?g(\?|$)/.test(source)) return "JPG";
+/** 확장자로 양식의 "파일 형식" 드롭다운 값을 정합니다. */
+function fileKind(imageUrl: string) {
+  const source = String(imageUrl ?? "").toLowerCase();
+  if (/\.png(\?|#|$)/.test(source)) return "PNG";
+  if (/\.jpe?g(\?|#|$)/.test(source)) return "JPG";
   return "";
 }
 
@@ -223,9 +224,9 @@ const CREATIVES: AppendSheet = {
     d.creatives.map((c) => ({
       campaign_name: campaignName(d, c.campaignId),
       sku: productName(d, c.productId),
-      fileName: c.fileName,
+      fileName: fileNameFromUrl(c.imageUrl),
       imageUrl: c.imageUrl,
-      fileKind: fileKind(c.fileName, c.imageUrl),
+      fileKind: fileKind(c.imageUrl),
       // 규격(가로·세로·1:1·로고 메인)은 폼에서 받지 않아 담당자가 확인해 채웁니다.
       width: "",
       height: "",

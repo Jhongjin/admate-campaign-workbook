@@ -49,7 +49,7 @@ export type Creative = {
   id: string;
   campaignId: string;
   productId: string;
-  fileName: string;
+  /** 공개된 이미지 주소. 파일명은 이 주소에서 뽑아 씁니다. */
   imageUrl: string;
   message: string;
   target: string;

@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { fileNameFromUrl } from "@/lib/workbook/util";
 import type {
   Campaign,
   Contact,
@@ -16,7 +17,7 @@ const steps = [
   ["담당자 정보", "확인과 보완 연락에 필요한 정보"],
   ["캠페인", "예산·기간·광고 목표 설정"],
   ["상품·고객", "문안의 근거가 되는 핵심 브리프"],
-  ["광고 이미지", "이미지와 연결 메시지 등록"],
+  ["광고 이미지", "이미지 주소와 연결 메시지 등록"],
   ["표현 기준", "브랜드·법무 기준과 참고자료"],
   ["확인·제출", "누락을 확인하고 제출 준비"],
 ] as const;
@@ -48,7 +49,7 @@ const emptyProduct = (campaignId = ""): Product => ({
 });
 
 const emptyCreative = (campaignId = "", productId = ""): Creative => ({
-  id: makeId(), campaignId, productId, fileName: "", imageUrl: "", message: "", target: "", scope: "", startDate: "", endDate: "", url: "", notice: "",
+  id: makeId(), campaignId, productId, imageUrl: "", message: "", target: "", scope: "", startDate: "", endDate: "", url: "", notice: "",
 });
 
 const emptyContact = (): Contact => ({
@@ -185,7 +186,7 @@ export function CampaignWorkbook() {
       if (!item.url.startsWith("http")) missing.push(`상품 ${index + 1} 연결 페이지`);
     });
     draft.creatives.forEach((item, index) => {
-      if (!item.fileName && !item.imageUrl.startsWith("http")) missing.push(`이미지 ${index + 1} 파일 또는 주소`);
+      if (!item.imageUrl.startsWith("http")) missing.push(`이미지 ${index + 1} 주소`);
       if (!item.message.trim()) missing.push(`이미지 ${index + 1} 핵심 메시지`);
     });
     if (!draft.policy.tone.trim()) missing.push("원하는 문체와 분위기");
@@ -202,7 +203,7 @@ export function CampaignWorkbook() {
         : "",
       draft.campaigns.some((item) => !item.name || !item.budget || !item.startDate || !item.endDate) ? "각 캠페인의 이름, 예산과 기간을 입력해 주세요." : "",
       draft.products.some((item) => !item.name || !item.summary || !item.features || !item.target || !item.need || !item.url.startsWith("http")) ? "상품명, 소개, 특징, 주요 고객, 고객 고민과 연결 페이지를 확인해 주세요." : "",
-      draft.creatives.some((item) => (!item.fileName && !item.imageUrl.startsWith("http")) || !item.message) ? "각 이미지의 파일 또는 주소와 핵심 메시지를 입력해 주세요." : "",
+      draft.creatives.some((item) => !item.imageUrl.startsWith("http") || !item.message) ? "각 이미지의 공개 주소(https://…)와 핵심 메시지를 입력해 주세요." : "",
       !draft.policy.tone || !draft.policy.banned ? "원하는 문체와 사용하면 안 되는 표현을 입력해 주세요." : "",
       "",
     ];
@@ -483,14 +484,19 @@ export function CampaignWorkbook() {
             <div className="repeat-stack">
               {draft.creatives.map((creative, index) => (
                 <article className="repeat-card" key={creative.id}>
-                  <div className="repeat-head"><div><span>광고 이미지 {index + 1}</span><h3>{creative.fileName || "새 이미지"}</h3></div>{draft.creatives.length > 1 && <button type="button" onClick={() => removeItem("creatives", creative.id)}>삭제</button>}</div>
+                  <div className="repeat-head"><div><span>광고 이미지 {index + 1}</span><h3>{fileNameFromUrl(creative.imageUrl) || "새 이미지"}</h3></div>{draft.creatives.length > 1 && <button type="button" onClick={() => removeItem("creatives", creative.id)}>삭제</button>}</div>
                   <div className="form-grid">
                     <Field label="연결할 캠페인" required why="이미지를 사용할 캠페인을 선택합니다."><Select value={creative.campaignId} onChange={(e) => updateCreative(creative.id, "campaignId", e.target.value)}>{draft.campaigns.map((item, i) => <option value={item.id} key={item.id}>{item.name || `캠페인 ${i + 1}`}</option>)}</Select></Field>
                     <Field label="연결할 상품·서비스" required why="이미지와 상품 정보를 정확히 연결합니다."><Select value={creative.productId} onChange={(e) => updateCreative(creative.id, "productId", e.target.value)}>{draft.products.map((item, i) => <option value={item.id} key={item.id}>{item.name || `상품·서비스 ${i + 1}`}</option>)}</Select></Field>
-                    <Field label="이미지 파일" required why="광고에 사용할 이미지입니다. 현재 화면에서는 파일명을 임시 저장하며 실제 업로드는 서버 연결 후 제공됩니다." wide>
-                      <label className="upload-box"><input type="file" accept="image/png,image/jpeg" onChange={(e) => updateCreative(creative.id, "fileName", e.target.files?.[0]?.name || "")} /><span className="upload-icon">↑</span><strong>{creative.fileName || "PNG 또는 JPG 파일 선택"}</strong><small>권장 5MB 이하 · 실제 저장 기능 연결 예정</small></label>
+                    <Field
+                      label="이미지 주소"
+                      required
+                      why="광고에 사용할 이미지의 공개 주소입니다. 광고 문안을 만들 때 이미지를 직접 확인해야 하므로 로그인 없이 열리는 주소여야 합니다. 정사각형(1:1), 640px 이상 PNG 또는 JPG를 권장합니다."
+                      example="https://brand.co.kr/images/ad01.png"
+                      wide
+                    >
+                      <TextInput type="url" value={creative.imageUrl} onChange={(e) => updateCreative(creative.id, "imageUrl", e.target.value)} placeholder="https://" />
                     </Field>
-                    <Field label="이미지 주소" why="이미지가 공개 주소로 준비되어 있다면 파일 대신 입력할 수 있습니다." example="https://brand.co.kr/images/ad01.png"><TextInput type="url" value={creative.imageUrl} onChange={(e) => updateCreative(creative.id, "imageUrl", e.target.value)} placeholder="https://" /></Field>
                     <Field label="이미지에서 강조할 메시지" required why="이미지와 광고 문안이 서로 다른 말을 하지 않도록 핵심 내용을 연결합니다." example="7일 무료학습으로 아이에게 맞는지 먼저 확인"><TextArea value={creative.message} onChange={(e) => updateCreative(creative.id, "message", e.target.value)} placeholder="이미지가 전달해야 할 핵심 메시지" /></Field>
                     <Field label="주요 고객" why="이 이미지를 우선 보여주고 싶은 고객을 적어 주세요."><TextArea value={creative.target} onChange={(e) => updateCreative(creative.id, "target", e.target.value)} placeholder="비워두면 상품의 주요 고객을 사용합니다" /></Field>
                     <Field label="사용할 캠페인 또는 매체" why="이미지 사용 범위가 제한된 경우 기록합니다." example="OpenAI Ads 여름 캠페인에만 사용"><TextInput value={creative.scope} onChange={(e) => updateCreative(creative.id, "scope", e.target.value)} placeholder="사용 범위" /></Field>
@@ -535,7 +541,7 @@ export function CampaignWorkbook() {
               <div className="summary-grid">
                 <button type="button" onClick={() => setStep(1)}><span>캠페인</span><strong>{draft.campaigns.length}</strong><small>예산·기간·목표 확인</small></button>
                 <button type="button" onClick={() => setStep(2)}><span>상품·서비스</span><strong>{draft.products.length}</strong><small>고객과 핵심 메시지 확인</small></button>
-                <button type="button" onClick={() => setStep(3)}><span>광고 이미지</span><strong>{draft.creatives.length}</strong><small>파일과 연결 정보 확인</small></button>
+                <button type="button" onClick={() => setStep(3)}><span>광고 이미지</span><strong>{draft.creatives.length}</strong><small>주소와 연결 정보 확인</small></button>
               </div>
               {requiredMissing.length > 0 && <div className="missing-list"><h3>먼저 확인해 주세요</h3>{requiredMissing.map((item) => <span key={item}>{item}</span>)}</div>}
               <div className="consent-box">

@@ -35,6 +35,12 @@ function validate(draft: WorkbookDraft, consents: string[]) {
     if (!x.url?.startsWith("http")) problems.push(`상품 ${i + 1} 연결 페이지`);
   });
 
+  if (!draft.creatives?.length) problems.push("광고 이미지");
+  draft.creatives?.forEach((x, i) => {
+    if (!x.imageUrl?.startsWith("http")) problems.push(`이미지 ${i + 1} 주소`);
+    if (!x.message?.trim()) problems.push(`이미지 ${i + 1} 핵심 메시지`);
+  });
+
   if (!draft.policy?.tone?.trim()) problems.push("원하는 문체와 분위기");
   if (!draft.policy?.banned?.trim()) problems.push("사용하면 안 되는 표현");
 
