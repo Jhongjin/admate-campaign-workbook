@@ -38,10 +38,13 @@ type SubmitResult = {
   notice: string | null;
 };
 
+/** 예전 초안에 저장된 광고 목표 값을 현재 값으로 옮기는 표입니다. */
+const OBJECTIVE_MIGRATION: Record<string, Campaign["objective"]> = { views: "reach", clicks: "click" };
+
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
 const emptyCampaign = (): Campaign => ({
-  id: makeId(), name: "", budget: "", budgetType: "daily", startDate: "", endDate: "", objective: "views", country: "KR",
+  id: makeId(), name: "", budget: "", budgetType: "daily", startDate: "", endDate: "", objective: "reach", country: "KR",
 });
 
 const emptyProduct = (campaignId = ""): Product => ({
@@ -138,7 +141,12 @@ export function CampaignWorkbook() {
         try {
           const parsed = JSON.parse(saved) as WorkbookDraft;
           // 이전 버전 초안에는 대행사 항목이 없으므로 기본값과 병합합니다.
-          setDraft({ ...parsed, contact: { ...emptyContact(), ...parsed.contact } });
+          // 광고 목표는 views·clicks 두 가지였던 시절 값을 새 값으로 옮깁니다.
+          setDraft({
+            ...parsed,
+            contact: { ...emptyContact(), ...parsed.contact },
+            campaigns: (parsed.campaigns ?? []).map((item) => ({ ...item, objective: OBJECTIVE_MIGRATION[item.objective] ?? item.objective })),
+          });
         } catch { /* 새 초안 사용 */ }
       }
       setHydrated(true);
@@ -437,8 +445,12 @@ export function CampaignWorkbook() {
                     <Field label="예산 사용 방식" required why="하루 기준 또는 전체 기간 기준으로 예산을 관리합니다.">
                       <Select value={campaign.budgetType} onChange={(e) => updateCampaign(campaign.id, "budgetType", e.target.value)}><option value="daily">하루 기준</option><option value="lifetime">전체 기간 기준</option></Select>
                     </Field>
-                    <Field label="광고 목표" required why="노출 확대와 사이트 방문 중 우선할 목표를 선택합니다.">
-                      <Select value={campaign.objective} onChange={(e) => updateCampaign(campaign.id, "objective", e.target.value)}><option value="views">더 많은 사람에게 알리기</option><option value="clicks">사이트 방문 늘리기</option></Select>
+                    <Field label="광고 목표" required why="이 캠페인에서 우선할 성과를 선택합니다. 선택한 목표에 따라 광고그룹 입찰 방식이 정해집니다.">
+                      <Select value={campaign.objective} onChange={(e) => updateCampaign(campaign.id, "objective", e.target.value)}>
+                        <option value="reach">도달/노출(Reach)</option>
+                        <option value="click">클릭(Click)</option>
+                        <option value="conversion">전환(Conversion)</option>
+                      </Select>
                     </Field>
                     <Field label="시작일" required why="광고를 시작하려는 날짜입니다."><TextInput type="date" value={campaign.startDate} onChange={(e) => updateCampaign(campaign.id, "startDate", e.target.value)} /></Field>
                     <Field label="종료일" required why="광고를 종료하려는 날짜이며 시작일 이후여야 합니다."><TextInput type="date" min={campaign.startDate} value={campaign.endDate} onChange={(e) => updateCampaign(campaign.id, "endDate", e.target.value)} /></Field>

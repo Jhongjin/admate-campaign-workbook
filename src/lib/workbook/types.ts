@@ -22,7 +22,8 @@ export type Campaign = {
   budgetType: "daily" | "lifetime";
   startDate: string;
   endDate: string;
-  objective: "views" | "clicks";
+  /** 광고 목표. 공식 업로드 시트는 Views/Clicks 만 받으므로 전환은 Clicks 로 내보냅니다. */
+  objective: "reach" | "click" | "conversion";
   country: string;
 };
 

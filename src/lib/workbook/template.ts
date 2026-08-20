@@ -43,7 +43,23 @@ export type SheetSpec = AppendSheet | FixedSheet;
 
 /* ------------------------------------------------------------------ 값 변환 */
 
-const OBJECTIVE: Record<Campaign["objective"], string> = { views: "Views", clicks: "Clicks" };
+/** 광고주에게 보여 주는 목표 이름. */
+const OBJECTIVE_LABEL: Record<Campaign["objective"], string> = {
+  reach: "도달/노출(Reach)",
+  click: "클릭(Click)",
+  conversion: "전환(Conversion)",
+};
+/**
+ * 공식 campaigns 시트의 objective 컬럼은 Views 와 Clicks 만 받습니다
+ * (양식 드롭다운이 "Views,Clicks", 가이드도 "Views or clicks — CPM 또는 CPC 입찰 결정").
+ * 전환은 대응 값이 없어 입찰 방식이 가장 가까운 Clicks 로 내보내고,
+ * 광고주가 실제로 고른 목표는 담당자·제출정보 시트에 남깁니다.
+ */
+const OBJECTIVE: Record<Campaign["objective"], string> = {
+  reach: "Views",
+  click: "Clicks",
+  conversion: "Clicks",
+};
 const BUDGET_TYPE: Record<Campaign["budgetType"], string> = { daily: "Daily", lifetime: "Lifetime" };
 const PRIORITY: Record<string, string> = { high: "높음", normal: "보통", low: "낮음" };
 /** 양식 드롭다운 어휘에 맞춥니다 (경쟁사: 가능·불가 / 비교: 가능·제한적 가능·불가) */
@@ -110,6 +126,13 @@ const CONTACT_SHEET: FixedSheet = {
       { label: "업무 이메일", value: c.email },
       { label: "연락처", value: c.phone },
     ];
+    for (const [i, camp] of d.campaigns.entries()) {
+      const picked = OBJECTIVE_LABEL[camp.objective] ?? camp.objective;
+      const note = camp.objective === "conversion"
+        ? `${picked} — 공식 시트에는 Clicks 로 표기됨`
+        : picked;
+      rows.push({ label: `광고 목표 ${i + 1} · ${camp.name || `캠페인 ${i + 1}`}`, value: note });
+    }
     if (c.partnerType === "agency") {
       rows.push({ label: "광고주 회사명", value: c.advertiser });
     } else if (c.hasAgency) {
