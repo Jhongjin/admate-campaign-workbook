@@ -123,6 +123,8 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function CampaignWorkbook() {
   const [draft, setDraft] = useState<WorkbookDraft>(initialDraft);
   const [step, setStep] = useState(0);
+  // 한 번이라도 열어 본 가장 뒤 단계. 여기까지는 목록에서 바로 오갈 수 있습니다.
+  const [maxStep, setMaxStep] = useState(0);
   const [stepError, setStepError] = useState("");
   // 한 글자라도 입력했는지 — 이탈 경고를 띄울지 판단합니다.
   const [dirty, setDirty] = useState(false);
@@ -214,7 +216,19 @@ export function CampaignWorkbook() {
   const next = () => {
     if (!validateCurrentStep()) return;
     setStepError("");
-    setStep((current) => Math.min(steps.length - 1, current + 1));
+    setStep((current) => {
+      const target = Math.min(steps.length - 1, current + 1);
+      setMaxStep((furthest) => Math.max(furthest, target));
+      return target;
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  /** 이미 지나온 단계는 목록에서 바로 이동합니다. 누락은 마지막 확인 단계에서 한 번에 짚어 줍니다. */
+  const goToStep = (index: number) => {
+    if (index > maxStep) return;
+    setStepError("");
+    setStep(index);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -229,6 +243,7 @@ export function CampaignWorkbook() {
     setDraft(initialDraft());
     setStep(0);
     setConsents(CONSENTS.map(() => false));
+    setMaxStep(0);
     setResult(null);
     setSubmitError("");
     setDirty(false);
@@ -348,8 +363,13 @@ export function CampaignWorkbook() {
           </div>
           <ol className="step-list">
             {steps.map(([title, description], index) => (
-              <li key={title} className={`${index === step ? "active" : ""} ${index < step ? "done" : ""}`}>
-                <button type="button" onClick={() => index <= step && setStep(index)} aria-current={index === step ? "step" : undefined}>
+              <li key={title} className={`${index === step ? "active" : ""} ${index < step ? "done" : ""} ${index !== step && index <= maxStep ? "visited" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => goToStep(index)}
+                  aria-current={index === step ? "step" : undefined}
+                  aria-disabled={index > maxStep}
+                >
                   <span className="step-number">{index < step ? "✓" : index + 1}</span>
                   <span><strong>{title}</strong><small>{description}</small></span>
                 </button>

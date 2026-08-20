@@ -52,7 +52,11 @@ button { color: inherit; }
 .progress-intro p { margin: 0; color: #b8c4d8; font-size: 13px; line-height: 1.65; }
 .step-list { list-style: none; margin: 23px 0; padding: 0; display: grid; gap: 6px; }
 .step-list button { width: 100%; border: 0; background: transparent; color: #9eabc0; display: grid; grid-template-columns: 32px 1fr; gap: 11px; align-items: center; text-align: left; padding: 10px 8px; border-radius: 12px; }
-.step-list li.done button, .step-list li.active button { cursor: pointer; }
+.step-list li.done button, .step-list li.active button, .step-list li.visited button { cursor: pointer; }
+/* 이미 지나온 단계는 바로 눌러 이동할 수 있음을 색으로 알립니다. */
+.step-list li.visited button { color: #cdd6e4; }
+.step-list li.visited button:hover { background: rgba(255,255,255,.06); color: white; }
+.step-list li.visited .step-number { border-color: rgba(255,255,255,.34); }
 .step-list li.active button { background: rgba(255,255,255,.09); color: white; }
 .step-list li.done button { color: #cdd6e4; }
 .step-number { width: 30px; height: 30px; border: 1px solid rgba(255,255,255,.18); border-radius: 9px; display: grid; place-items: center; font-size: 12px; font-weight: 800; }
