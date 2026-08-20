@@ -567,3 +567,30 @@ button { color: inherit; }
 @media (max-width: 760px) {
   .wb-dark .form-panel { background: var(--wbd-panel); }
 }
+
+/* 작성 중 이탈 확인 — 뒤로가기와 사이트 안 링크에서 띄웁니다.
+   새로고침·탭 닫기는 브라우저 자체 확인 창이 대신합니다. */
+.leave-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px;
+  background: rgba(6,10,18,.62); backdrop-filter: blur(3px); animation: leaveFade .16s ease; }
+.leave-dialog { width: min(430px, 100%); border: 1px solid var(--line); border-radius: 18px; background: var(--panel);
+  padding: 28px 28px 24px; text-align: center; box-shadow: 0 28px 70px rgba(10,16,28,.4); animation: leaveRise .2s cubic-bezier(.2,.9,.3,1); }
+.leave-icon { width: 42px; height: 42px; margin: 0 auto 15px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--red-soft); color: var(--red); font-size: 20px; font-weight: 850; }
+.leave-dialog strong { display: block; font-size: 17px; letter-spacing: -.03em; }
+.leave-dialog p { margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; word-break: keep-all; }
+.leave-actions { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.leave-actions button { width: 100%; }
+.leave-confirm { min-height: 46px; border: 1px solid var(--red); border-radius: 11px; background: var(--red); color: white;
+  font-size: 13px; font-weight: 800; cursor: pointer; transition: .18s ease; }
+.leave-confirm:hover { background: var(--red-dark); border-color: var(--red-dark); }
+@keyframes leaveFade { from { opacity: 0; } }
+@keyframes leaveRise { from { opacity: 0; transform: translateY(12px) scale(.97); } }
+@media (prefers-reduced-motion: reduce) { .leave-backdrop, .leave-dialog { animation: none; } }
+@media (max-width: 520px) { .leave-actions { grid-template-columns: 1fr; } }
+
+.wb-dark .draft-warning { color: #d8b271; }
+.wb-dark .draft-warning .save-dot { background: #e0a944; box-shadow: 0 0 0 4px rgba(224,169,68,.15); }
+.wb-dark .leave-backdrop { background: rgba(3,6,12,.72); }
+.wb-dark .leave-dialog { background: var(--wbd-panel); border-color: var(--wbd-line); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.wb-dark .leave-icon { background: rgba(229,29,53,.16); color: #ff8c99; }
+.wb-dark .leave-dialog p { color: var(--wbd-muted); }

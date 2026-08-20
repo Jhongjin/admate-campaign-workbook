@@ -38,9 +38,6 @@ type SubmitResult = {
   notice: string | null;
 };
 
-/** 예전 초안에 저장된 광고 목표 값을 현재 값으로 옮기는 표입니다. */
-const OBJECTIVE_MIGRATION: Record<string, Campaign["objective"]> = { views: "reach", clicks: "click" };
-
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
 const emptyCampaign = (): Campaign => ({
@@ -126,48 +123,43 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function CampaignWorkbook() {
   const [draft, setDraft] = useState<WorkbookDraft>(initialDraft);
   const [step, setStep] = useState(0);
-  const [hydrated, setHydrated] = useState(false);
-  const [saveLabel, setSaveLabel] = useState("임시저장 준비");
   const [stepError, setStepError] = useState("");
+  // 한 글자라도 입력했는지 — 이탈 경고를 띄울지 판단합니다.
+  const [dirty, setDirty] = useState(false);
+  // 이탈 확인 창. link 면 확인 후 그 주소로 이동합니다.
+  const [leaving, setLeaving] = useState<{ kind: "back" | "link"; href?: string } | null>(null);
   const [consents, setConsents] = useState<boolean[]>(() => CONSENTS.map(() => false));
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [result, setResult] = useState<SubmitResult | null>(null);
 
+  // 새로고침·탭 닫기·주소 직접 이동은 브라우저가 자체 확인 창을 띄웁니다.
+  // 문구는 브라우저가 정하며 사이트가 바꿀 수 없습니다.
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const saved = window.localStorage.getItem("admate-campaign-workbook-draft");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved) as WorkbookDraft;
-          // 이전 버전 초안에는 대행사 항목이 없으므로 기본값과 병합합니다.
-          // 광고 목표는 views·clicks 두 가지였던 시절 값을 새 값으로 옮깁니다.
-          setDraft({
-            ...parsed,
-            contact: { ...emptyContact(), ...parsed.contact },
-            campaigns: (parsed.campaigns ?? []).map((item) => ({ ...item, objective: OBJECTIVE_MIGRATION[item.objective] ?? item.objective })),
-          });
-        } catch { /* 새 초안 사용 */ }
-      }
-      setHydrated(true);
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, []);
+    if (!dirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
 
+  // 뒤로가기는 우리가 직접 잡아 확인 창을 보여 줍니다.
+  // 미리 히스토리에 한 칸을 쌓아 두고, 그 칸이 빠지는 순간을 신호로 씁니다.
   useEffect(() => {
-    if (!hydrated) return;
-    const timer = window.setTimeout(() => {
-      window.localStorage.setItem("admate-campaign-workbook-draft", JSON.stringify(draft));
-      setSaveLabel(`자동 저장됨 · ${new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`);
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [draft, hydrated]);
+    if (!dirty) return;
+    window.history.pushState({ workbookGuard: true }, "");
+    const onPopState = () => setLeaving({ kind: "back" });
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [dirty]);
 
-  const updateContact = (key: keyof Contact, value: string | boolean) => setDraft((current) => ({ ...current, contact: { ...current.contact, [key]: value } }));
-  const updatePolicy = (key: keyof Policy, value: string) => setDraft((current) => ({ ...current, policy: { ...current.policy, [key]: value } }));
-  const updateCampaign = (id: string, key: keyof Campaign, value: string) => setDraft((current) => ({ ...current, campaigns: current.campaigns.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
-  const updateProduct = (id: string, key: keyof Product, value: string) => setDraft((current) => ({ ...current, products: current.products.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
-  const updateCreative = (id: string, key: keyof Creative, value: string) => setDraft((current) => ({ ...current, creatives: current.creatives.map((item) => item.id === id ? { ...item, [key]: value } : item) }));
+  const updateContact = (key: keyof Contact, value: string | boolean) => { setDirty(true); setDraft((current) => ({ ...current, contact: { ...current.contact, [key]: value } })); };
+  const updatePolicy = (key: keyof Policy, value: string) => { setDirty(true); setDraft((current) => ({ ...current, policy: { ...current.policy, [key]: value } })); };
+  const updateCampaign = (id: string, key: keyof Campaign, value: string) => { setDirty(true); setDraft((current) => ({ ...current, campaigns: current.campaigns.map((item) => item.id === id ? { ...item, [key]: value } : item) })); };
+  const updateProduct = (id: string, key: keyof Product, value: string) => { setDirty(true); setDraft((current) => ({ ...current, products: current.products.map((item) => item.id === id ? { ...item, [key]: value } : item) })); };
+  const updateCreative = (id: string, key: keyof Creative, value: string) => { setDirty(true); setDraft((current) => ({ ...current, creatives: current.creatives.map((item) => item.id === id ? { ...item, [key]: value } : item) })); };
 
   const isAgency = draft.contact.partnerType === "agency";
 
@@ -233,13 +225,48 @@ export function CampaignWorkbook() {
   };
 
   const resetDraft = () => {
-    if (!window.confirm("현재 기기에 임시 저장된 작성 내용을 모두 지울까요?")) return;
-    window.localStorage.removeItem("admate-campaign-workbook-draft");
+    if (dirty && !window.confirm("작성한 내용을 모두 지우고 처음부터 시작할까요?")) return;
     setDraft(initialDraft());
     setStep(0);
     setConsents(CONSENTS.map(() => false));
     setResult(null);
     setSubmitError("");
+    setDirty(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  /** 이탈 확인 창에서 "계속 작성"을 고른 경우. 뒤로가기용 히스토리 칸을 다시 쌓아 둡니다. */
+  const cancelLeave = () => {
+    setLeaving((current) => {
+      if (current?.kind === "back") window.history.pushState({ workbookGuard: true }, "");
+      return null;
+    });
+  };
+
+  /** 이탈 확인 창에서 "나가기"를 고른 경우. */
+  const confirmLeave = () => {
+    const target = leaving;
+    setLeaving(null);
+    setDirty(false);
+    if (target?.kind === "link" && target.href) window.location.href = target.href;
+    else window.history.back();
+  };
+
+  // 확인 창은 Esc 로도 닫습니다.
+  useEffect(() => {
+    if (!leaving) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") cancelLeave();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [leaving]);
+
+  /** 사이트 안의 링크는 기본 이동을 막고 확인 창을 먼저 띄웁니다. */
+  const guardLink = (href: string) => (event: React.MouseEvent) => {
+    if (!dirty) return;
+    event.preventDefault();
+    setLeaving({ kind: "link", href });
   };
 
   const allConsented = consents.every(Boolean);
@@ -263,8 +290,8 @@ export function CampaignWorkbook() {
         return;
       }
       setResult(data as SubmitResult);
-      // 제출이 끝났으니 이 브라우저의 임시 저장본은 지웁니다.
-      window.localStorage.removeItem("admate-campaign-workbook-draft");
+      // 제출이 끝났으니 더 이상 이탈을 막지 않습니다.
+      setDirty(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setSubmitError("네트워크 오류로 제출하지 못했습니다. 잠시 후 다시 시도해 주세요.");
@@ -288,23 +315,26 @@ export function CampaignWorkbook() {
     URL.revokeObjectURL(url);
   };
 
-  const addCampaign = () => setDraft((current) => ({ ...current, campaigns: [...current.campaigns, emptyCampaign()] }));
-  const addProduct = () => setDraft((current) => ({ ...current, products: [...current.products, emptyProduct(current.campaigns[0]?.id)] }));
-  const addCreative = () => setDraft((current) => ({ ...current, creatives: [...current.creatives, emptyCreative(current.campaigns[0]?.id, current.products[0]?.id)] }));
+  const markDirty = () => setDirty(true);
+
+  const addCampaign = () => { markDirty(); setDraft((current) => ({ ...current, campaigns: [...current.campaigns, emptyCampaign()] })); };
+  const addProduct = () => { markDirty(); setDraft((current) => ({ ...current, products: [...current.products, emptyProduct(current.campaigns[0]?.id)] })); };
+  const addCreative = () => { markDirty(); setDraft((current) => ({ ...current, creatives: [...current.creatives, emptyCreative(current.campaigns[0]?.id, current.products[0]?.id)] })); };
 
   const removeItem = (kind: "campaigns" | "products" | "creatives", id: string) => {
+    markDirty();
     setDraft((current) => ({ ...current, [kind]: current[kind].filter((item) => item.id !== id) }));
   };
 
   return (
     <div className="app-shell">
       <header className="site-header">
-        <Link className="brand" href="/" aria-label="메인 페이지로 이동">
+        <Link className="brand" href="/" aria-label="메인 페이지로 이동" onClick={guardLink("/")}>
           <BrandMark size={36} className="brand-logo" />
           <span><strong>KT nasmedia</strong><small>OpenAI Ads · AdMate</small></span>
         </Link>
         <div className="header-actions">
-          <span className="save-status"><span className="save-dot" />{saveLabel}</span>
+          <span className="save-status draft-warning"><span className="save-dot" />작성 중인 내용은 저장되지 않습니다</span>
           <button className="text-button" type="button" onClick={resetDraft}>처음부터 작성</button>
         </div>
       </header>
@@ -615,6 +645,30 @@ export function CampaignWorkbook() {
         </section>
       </main>
       <footer className="site-footer"><span>© kt nasmedia. All rights reserved.</span><span>자료 제출 문의 · <a href="mailto:openai@nasmedia.co.kr">openai@nasmedia.co.kr</a></span></footer>
+
+      {leaving && (
+        <div className="leave-backdrop" onClick={cancelLeave}>
+          <div
+            className="leave-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="leave-title"
+            aria-describedby="leave-desc"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="leave-icon" aria-hidden="true">!</span>
+            <strong id="leave-title">이 페이지에서 나갈까요?</strong>
+            <p id="leave-desc">
+              작성 중인 내용은 저장되지 않습니다. 지금 나가면 지금까지 입력한 내용이 모두 사라지고
+              되돌릴 수 없습니다.
+            </p>
+            <div className="leave-actions">
+              <button className="secondary-button" type="button" onClick={cancelLeave} autoFocus>계속 작성하기</button>
+              <button className="leave-confirm" type="button" onClick={confirmLeave}>나가기</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
