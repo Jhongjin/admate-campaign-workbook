@@ -10,6 +10,7 @@
  */
 
 import type { Campaign, SubmissionMeta, WorkbookDraft } from "./types";
+import { COLLECT_CONTACT_PII } from "./privacy";
 import { fileNameFromUrl } from "./util";
 
 export type CellValue = string | number;
@@ -122,9 +123,11 @@ const CONTACT_SHEET: FixedSheet = {
       { label: "작성자 구분", value: PARTNER[c.partnerType] ?? c.partnerType },
       { label: c.partnerType === "agency" ? "대행사명" : "회사명", value: c.company },
       { label: "브랜드명", value: c.brand },
-      { label: "담당자명", value: c.name },
-      { label: "업무 이메일", value: c.email },
-      { label: "연락처", value: c.phone },
+      ...(COLLECT_CONTACT_PII ? [
+        { label: "담당자명", value: c.name },
+        { label: "업무 이메일", value: c.email },
+        { label: "연락처", value: c.phone },
+      ] : []),
     ];
     for (const [i, camp] of d.campaigns.entries()) {
       const picked = OBJECTIVE_LABEL[camp.objective] ?? camp.objective;
@@ -138,9 +141,11 @@ const CONTACT_SHEET: FixedSheet = {
     } else if (c.hasAgency) {
       rows.push(
         { label: "대행사명", value: c.agencyCompany },
-        { label: "대행사 담당자", value: c.agencyName },
-        { label: "대행사 이메일", value: c.agencyEmail },
-        { label: "대행사 연락처", value: c.agencyPhone },
+        ...(COLLECT_CONTACT_PII ? [
+          { label: "대행사 담당자", value: c.agencyName },
+          { label: "대행사 이메일", value: c.agencyEmail },
+          { label: "대행사 연락처", value: c.agencyPhone },
+        ] : []),
       );
     }
     return rows;

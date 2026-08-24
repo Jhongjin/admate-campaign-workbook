@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildWorkbookXlsx, makeReceiptNo } from "@/lib/workbook/build-xlsx";
 import { DEFAULT_TO, sendWorkbookMail } from "@/lib/workbook/mailer";
+import { withoutContactPii } from "@/lib/workbook/privacy";
 import type { SubmitPayload, WorkbookDraft } from "@/lib/workbook/types";
 import { checkRateLimit, clientIp } from "@/lib/workbook/rate-limit";
 
@@ -18,8 +19,6 @@ function validate(draft: WorkbookDraft, consents: string[]) {
 
   if (!c.company?.trim()) problems.push(c.partnerType === "agency" ? "대행사명" : "회사명");
   if (!c.brand?.trim()) problems.push("브랜드명");
-  if (!c.name?.trim()) problems.push("담당자명");
-  if (!/^\S+@\S+\.\S+$/.test(c.email ?? "")) problems.push("업무 이메일");
   if (c.partnerType === "agency" && !c.advertiser?.trim()) problems.push("광고주 회사명");
 
   if (!draft.campaigns?.length) problems.push("캠페인");
@@ -80,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "요청을 읽을 수 없습니다." }, { status: 400 });
   }
 
-  const draft = payload?.draft;
+  const draft = payload?.draft ? withoutContactPii(payload.draft) : undefined;
   const consents = payload?.consents ?? [];
   if (!draft) {
     return NextResponse.json({ ok: false, error: "작성 내용이 비어 있습니다." }, { status: 400 });

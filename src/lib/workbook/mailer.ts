@@ -9,6 +9,7 @@
  */
 
 import { Resend } from "resend";
+import { COLLECT_CONTACT_PII } from "./privacy";
 import type { SubmissionMeta, WorkbookDraft } from "./types";
 
 export const DEFAULT_TO = "openai@nasmedia.co.kr";
@@ -58,9 +59,8 @@ function buildHtml(draft: WorkbookDraft, meta: SubmissionMeta, fileName: string)
     row(isAgency ? "대행사명" : "회사명", c.company),
     isAgency ? row("광고주 회사명", c.advertiser) : "",
     row("브랜드명", c.brand),
-    row("담당자", `${c.name}${c.phone ? ` · ${c.phone}` : ""}`),
-    row("업무 이메일", c.email),
-    !isAgency && c.hasAgency ? row("대행사", `${c.agencyCompany}${c.agencyName ? ` · ${c.agencyName}` : ""}`) : "",
+    ...(COLLECT_CONTACT_PII ? [row("담당자", `${c.name}${c.phone ? ` · ${c.phone}` : ""}`), row("업무 이메일", c.email)] : []),
+    !isAgency && c.hasAgency ? row("대행사", `${c.agencyCompany}${COLLECT_CONTACT_PII && c.agencyName ? ` · ${c.agencyName}` : ""}`) : "",
   ].join("");
 
   const counts = [
@@ -83,9 +83,7 @@ function buildHtml(draft: WorkbookDraft, meta: SubmissionMeta, fileName: string)
       <hr style="margin:20px 0;border:0;border-top:1px solid #eef0f4" />
       <p style="margin:0 0 6px;font-weight:700">첨부 파일</p>
       <p style="margin:0;color:#4b5563">${escapeHtml(fileName)}</p>
-      <p style="margin:16px 0 0;color:#6b7280;font-size:13px">
-        회신은 제출 담당자(${escapeHtml(c.email)})에게 바로 전달됩니다.
-      </p>
+      ${COLLECT_CONTACT_PII && c.email ? `<p style="margin:16px 0 0;color:#6b7280;font-size:13px">회신은 제출 담당자(${escapeHtml(c.email)})에게 바로 전달됩니다.</p>` : ""}
     </div>
   </div>
 </body></html>`;
@@ -102,7 +100,7 @@ function buildText(draft: WorkbookDraft, meta: SubmissionMeta, fileName: string)
     `${c.partnerType === "agency" ? "대행사명" : "회사명"}: ${c.company}`,
     c.partnerType === "agency" ? `광고주 회사명: ${c.advertiser}` : "",
     `브랜드명: ${c.brand}`,
-    `담당자: ${c.name} / ${c.email} / ${c.phone}`,
+    COLLECT_CONTACT_PII ? `담당자: ${c.name} / ${c.email} / ${c.phone}` : "",
     "",
     `캠페인 ${draft.campaigns.length}건 · 상품 ${draft.products.length}건 · 이미지 ${draft.creatives.length}건`,
     `첨부: ${fileName}`,
@@ -132,7 +130,7 @@ export async function sendWorkbookMail(args: {
       from,
       to,
       ...(cc.length ? { cc } : {}),
-      ...(draft.contact.email ? { replyTo: draft.contact.email } : {}),
+      ...(COLLECT_CONTACT_PII && draft.contact.email ? { replyTo: draft.contact.email } : {}),
       subject: `[OpenAI Ads 브리프] ${label} · ${meta.receiptNo}`,
       html: buildHtml(draft, meta, fileName),
       text: buildText(draft, meta, fileName),
