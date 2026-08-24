@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { buildWorkbookXlsx, makeReceiptNo } from "@/lib/workbook/build-xlsx";
 import { DEFAULT_TO, sendWorkbookMail } from "@/lib/workbook/mailer";
 import type { SubmitPayload, WorkbookDraft } from "@/lib/workbook/types";
+import { checkRateLimit, clientIp } from "@/lib/workbook/rate-limit";
 
 export const runtime = "nodejs";
 // 첨부 파일을 만들어 보내므로 캐시하지 않습니다.
@@ -54,6 +55,15 @@ function validate(draft: WorkbookDraft, consents: string[]) {
 const MAX_BODY_BYTES = 512 * 1024;
 
 export async function POST(request: Request) {
+  // 같은 IP의 반복 제출을 제한한다 (메일 발송 악용 방지).
+  const retryAfter = checkRateLimit(clientIp(request));
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { ok: false, error: "제출이 너무 잦습니다. 잠시 후 다시 시도해 주세요." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } },
+    );
+  }
+
   const declared = Number(request.headers.get("content-length") ?? 0);
   if (declared > MAX_BODY_BYTES) {
     return NextResponse.json({ ok: false, error: "작성 내용이 너무 큽니다." }, { status: 413 });
