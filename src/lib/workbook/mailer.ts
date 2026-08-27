@@ -5,7 +5,7 @@
  *   SMTP_HOST           사내 SMTP Relay 주소. 있으면 Resend보다 우선합니다.
  *   SMTP_PORT           SMTP 포트 (기본: 25)
  *   SMTP_USER / SMTP_PASS SMTP 인증 정보. IP 허용 Relay라면 둘 다 생략할 수 있습니다.
- *   SMTP_REQUIRE_TLS    STARTTLS 강제 여부 ("true"일 때만 강제)
+ *   SMTP_REQUIRE_TLS    STARTTLS 강제 여부 (기본: true)
  *   RESEND_API_KEY      SMTP Relay가 없을 때만 쓰는 기존 Resend API 키
  *   WORKBOOK_MAIL_FROM  보내는 사람 (기본: KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>)
  *   WORKBOOK_MAIL_TO    받는 사람 (기본: openai@nasmedia.co.kr, 콤마로 여러 명)
@@ -137,7 +137,8 @@ async function sendViaSmtp(args: {
     return { sent: false, reason: "failed", message: "SMTP 인증 정보가 완전하지 않습니다." };
   }
 
-  const requireTls = process.env.SMTP_REQUIRE_TLS === "true";
+  // 외부 호스팅 환경에서 계정 비밀번호를 평문으로 전송하지 않도록 기본값은 fail-closed입니다.
+  const requireTls = process.env.SMTP_REQUIRE_TLS !== "false";
   const transporter = nodemailer.createTransport({
     host,
     port: smtpPort(),
