@@ -51,10 +51,10 @@ npm run build
 
 ### 메일 환경변수
 
-`.env.example` 참고. `SMTP_HOST`가 설정되면 사내 SMTP Relay로 우선 발송하며,
-설정된 Relay가 실패해도 외부 Resend로 우회하지 않습니다. Relay가 아직 없다면
-기존 `RESEND_API_KEY` 경로를 사용합니다. 둘 다 없으면 브라우저에서 파일을
-내려받도록 안내하므로 로컬에서도 그대로 동작합니다.
+`.env.example` 참고. 기본 발송 경로는 `WORKBOOK_MAIL_TRANSPORT=resend`이며,
+사내 SMTP 자격증명을 등록해도 기존 Resend 발송을 유지합니다. 사내 Relay가
+실제 발송 검증을 통과한 뒤에만 `WORKBOOK_MAIL_TRANSPORT=smtp`로 명시 전환합니다.
+선택된 발송 경로가 실패하면 브라우저에서 파일을 내려받도록 안내합니다.
 
 사내 Relay 주소와 발신 주소는 운영 환경변수로만 등록합니다. `SMTP_PASS`는
 비밀값으로 등록하며 `SMTP_REQUIRE_TLS`는 기본적으로 `true`입니다. TLS를

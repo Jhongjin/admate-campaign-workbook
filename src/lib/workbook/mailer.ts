@@ -1,8 +1,9 @@
 /**
- * 접수 메일 발송 — 사내 SMTP Relay를 우선하고, 설정되지 않았을 때만 Resend를 씁니다.
+ * 접수 메일 발송 — 검증 전까지 Resend를 기본으로 유지하고, 명시 전환 시에만 사내 SMTP를 씁니다.
  *
  * 필요한 환경변수
- *   SMTP_HOST           사내 SMTP Relay 주소. 있으면 Resend보다 우선합니다.
+ *   WORKBOOK_MAIL_TRANSPORT  "resend"(기본) 또는 "smtp". SMTP 전환은 검증 후 명시합니다.
+ *   SMTP_HOST           사내 SMTP Relay 주소. WORKBOOK_MAIL_TRANSPORT=smtp 일 때만 씁니다.
  *   SMTP_PORT           SMTP 포트 (기본: 25)
  *   SMTP_USER / SMTP_PASS SMTP 인증 정보. IP 허용 Relay라면 둘 다 생략할 수 있습니다.
  *   SMTP_REQUIRE_TLS    STARTTLS 강제 여부 (기본: true)
@@ -181,8 +182,8 @@ export async function sendWorkbookMail(args: {
   const { draft, meta, fileName, buffer } = args;
   const label = draft.contact.brand || draft.contact.company || "브랜드 미기재";
 
-  // 사내 릴레이가 설정되면 외부 Resend로 우회하지 않습니다.
-  if (process.env.SMTP_HOST?.trim()) {
+  // SMTP 자격증명이 먼저 등록되더라도, 명시 전환 전에는 기존 Resend 발송을 유지합니다.
+  if (process.env.WORKBOOK_MAIL_TRANSPORT === "smtp") {
     return sendViaSmtp({ draft, meta, fileName, buffer, to, cc, from });
   }
 
