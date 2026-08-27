@@ -7,8 +7,9 @@
  *   SMTP_PORT           SMTP 포트 (기본: 25)
  *   SMTP_USER / SMTP_PASS SMTP 인증 정보. IP 허용 Relay라면 둘 다 생략할 수 있습니다.
  *   SMTP_REQUIRE_TLS    STARTTLS 강제 여부 (기본: true)
- *   RESEND_API_KEY      SMTP Relay가 없을 때만 쓰는 기존 Resend API 키
- *   WORKBOOK_MAIL_FROM  보내는 사람 (기본: KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>)
+ *   RESEND_API_KEY      Resend API 키
+ *   RESEND_MAIL_FROM    기존 Resend 발신 주소 (기본: OpenAI Ads 브리프 <noreply@nasmedia.co.kr>)
+ *   SMTP_MAIL_FROM      사내 SMTP 발신 주소 (기본: KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>)
  *   WORKBOOK_MAIL_TO    받는 사람 (기본: openai@nasmedia.co.kr, 콤마로 여러 명)
  *   WORKBOOK_MAIL_CC    참조 (선택, 콤마로 여러 명)
  */
@@ -19,7 +20,8 @@ import { COLLECT_CONTACT_PII } from "./privacy";
 import type { SubmissionMeta, WorkbookDraft } from "./types";
 
 export const DEFAULT_TO = "openai@nasmedia.co.kr";
-const DEFAULT_FROM = "KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>";
+const RESEND_DEFAULT_FROM = "OpenAI Ads 브리프 <noreply@nasmedia.co.kr>";
+const SMTP_DEFAULT_FROM = "KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>";
 
 export type SendResult =
   | { sent: true; id: string | null }
@@ -178,17 +180,18 @@ export async function sendWorkbookMail(args: {
 }): Promise<SendResult> {
   const to = list(process.env.WORKBOOK_MAIL_TO, DEFAULT_TO);
   const cc = list(process.env.WORKBOOK_MAIL_CC);
-  const from = process.env.WORKBOOK_MAIL_FROM || DEFAULT_FROM;
   const { draft, meta, fileName, buffer } = args;
   const label = draft.contact.brand || draft.contact.company || "브랜드 미기재";
 
   // SMTP 자격증명이 먼저 등록되더라도, 명시 전환 전에는 기존 Resend 발송을 유지합니다.
   if (process.env.WORKBOOK_MAIL_TRANSPORT === "smtp") {
+    const from = process.env.SMTP_MAIL_FROM || SMTP_DEFAULT_FROM;
     return sendViaSmtp({ draft, meta, fileName, buffer, to, cc, from });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { sent: false, reason: "not-configured" };
+  const from = process.env.RESEND_MAIL_FROM || RESEND_DEFAULT_FROM;
 
   try {
     const resend = new Resend(apiKey);

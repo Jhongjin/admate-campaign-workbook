@@ -56,6 +56,11 @@ npm run build
 실제 발송 검증을 통과한 뒤에만 `WORKBOOK_MAIL_TRANSPORT=smtp`로 명시 전환합니다.
 선택된 발송 경로가 실패하면 브라우저에서 파일을 내려받도록 안내합니다.
 
+Resend와 사내 SMTP는 발신 주소를 분리합니다. Resend는 `RESEND_MAIL_FROM`
+(기본 `noreply@nasmedia.co.kr`), 사내 SMTP는 `SMTP_MAIL_FROM`
+(기본 `alert@nasmedia.co.kr`)만 사용합니다. 한 쪽의 발신 주소 변경이 다른
+발송 경로에 영향을 주지 않도록 합니다.
+
 사내 Relay 주소와 발신 주소는 운영 환경변수로만 등록합니다. `SMTP_PASS`는
 비밀값으로 등록하며 `SMTP_REQUIRE_TLS`는 기본적으로 `true`입니다. TLS를
 지원하지 않는 Relay는 비밀번호를 평문으로 전송할 수 있으므로, 예외 해제 대신
