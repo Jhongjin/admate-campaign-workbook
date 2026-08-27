@@ -1,19 +1,24 @@
 /**
- * 접수 메일 발송 — Resend 를 씁니다.
+ * 접수 메일 발송 — 사내 SMTP Relay를 우선하고, 설정되지 않았을 때만 Resend를 씁니다.
  *
  * 필요한 환경변수
- *   RESEND_API_KEY      Resend API 키 (없으면 발송하지 않고 브라우저 내려받기로 대체)
- *   WORKBOOK_MAIL_FROM  보내는 사람 (기본: OpenAI Ads 브리프 <noreply@nasmedia.co.kr>)
+ *   SMTP_HOST           사내 SMTP Relay 주소. 있으면 Resend보다 우선합니다.
+ *   SMTP_PORT           SMTP 포트 (기본: 25)
+ *   SMTP_USER / SMTP_PASS SMTP 인증 정보. IP 허용 Relay라면 둘 다 생략할 수 있습니다.
+ *   SMTP_REQUIRE_TLS    STARTTLS 강제 여부 ("true"일 때만 강제)
+ *   RESEND_API_KEY      SMTP Relay가 없을 때만 쓰는 기존 Resend API 키
+ *   WORKBOOK_MAIL_FROM  보내는 사람 (기본: KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>)
  *   WORKBOOK_MAIL_TO    받는 사람 (기본: openai@nasmedia.co.kr, 콤마로 여러 명)
  *   WORKBOOK_MAIL_CC    참조 (선택, 콤마로 여러 명)
  */
 
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { COLLECT_CONTACT_PII } from "./privacy";
 import type { SubmissionMeta, WorkbookDraft } from "./types";
 
 export const DEFAULT_TO = "openai@nasmedia.co.kr";
-const DEFAULT_FROM = "OpenAI Ads 브리프 <noreply@nasmedia.co.kr>";
+const DEFAULT_FROM = "KT nasmedia OpenAI Ads <alert@nasmedia.co.kr>";
 
 export type SendResult =
   | { sent: true; id: string | null }
@@ -109,20 +114,79 @@ function buildText(draft: WorkbookDraft, meta: SubmissionMeta, fileName: string)
     .join("\n");
 }
 
+function smtpPort() {
+  const parsed = Number(process.env.SMTP_PORT ?? "25");
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= 65535 ? parsed : 25;
+}
+
+async function sendViaSmtp(args: {
+  draft: WorkbookDraft;
+  meta: SubmissionMeta;
+  fileName: string;
+  buffer: Buffer;
+  to: string[];
+  cc: string[];
+  from: string;
+}): Promise<SendResult> {
+  const host = process.env.SMTP_HOST?.trim();
+  if (!host) return { sent: false, reason: "not-configured" };
+
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS;
+  if (Boolean(user) !== Boolean(pass)) {
+    return { sent: false, reason: "failed", message: "SMTP 인증 정보가 완전하지 않습니다." };
+  }
+
+  const requireTls = process.env.SMTP_REQUIRE_TLS === "true";
+  const transporter = nodemailer.createTransport({
+    host,
+    port: smtpPort(),
+    // port 25는 일반적으로 STARTTLS 협상용입니다. SMTPS(465)를 쓰는 경우에만 true로 설정합니다.
+    secure: process.env.SMTP_SECURE === "true",
+    requireTLS: requireTls,
+    ...(user && pass ? { auth: { user, pass } } : {}),
+    ...(requireTls ? { tls: { minVersion: "TLSv1.2" as const } } : {}),
+  });
+
+  const label = args.draft.contact.brand || args.draft.contact.company || "브랜드 미기재";
+  try {
+    const result = await transporter.sendMail({
+      from: args.from,
+      to: args.to,
+      ...(args.cc.length ? { cc: args.cc } : {}),
+      ...(COLLECT_CONTACT_PII && args.draft.contact.email ? { replyTo: args.draft.contact.email } : {}),
+      subject: `[OpenAI Ads 브리프] ${label} · ${args.meta.receiptNo}`,
+      html: buildHtml(args.draft, args.meta, args.fileName),
+      text: buildText(args.draft, args.meta, args.fileName),
+      attachments: [{ filename: args.fileName, content: args.buffer }],
+    });
+    return { sent: true, id: result.messageId ?? null };
+  } catch (err) {
+    return { sent: false, reason: "failed", message: err instanceof Error ? err.message : String(err) };
+  } finally {
+    transporter.close();
+  }
+}
+
 export async function sendWorkbookMail(args: {
   draft: WorkbookDraft;
   meta: SubmissionMeta;
   fileName: string;
   buffer: Buffer;
 }): Promise<SendResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return { sent: false, reason: "not-configured" };
-
   const to = list(process.env.WORKBOOK_MAIL_TO, DEFAULT_TO);
   const cc = list(process.env.WORKBOOK_MAIL_CC);
   const from = process.env.WORKBOOK_MAIL_FROM || DEFAULT_FROM;
   const { draft, meta, fileName, buffer } = args;
   const label = draft.contact.brand || draft.contact.company || "브랜드 미기재";
+
+  // 사내 릴레이가 설정되면 외부 Resend로 우회하지 않습니다.
+  if (process.env.SMTP_HOST?.trim()) {
+    return sendViaSmtp({ draft, meta, fileName, buffer, to, cc, from });
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: false, reason: "not-configured" };
 
   try {
     const resend = new Resend(apiKey);

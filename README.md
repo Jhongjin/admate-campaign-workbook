@@ -42,17 +42,23 @@ npm run build
 | `src/lib/workbook/template.xlsx` | 실물 통합워크북 빈 양식 |
 | `src/lib/workbook/template-data.ts` | 위 파일을 base64 로 구운 것 (자동 생성) |
 | `src/lib/workbook/build-xlsx.ts` | 양식을 열어 값을 채우는 로직 |
-| `src/lib/workbook/mailer.ts` | Resend 발송 |
+| `src/lib/workbook/mailer.ts` | 사내 SMTP Relay 또는 Resend 발송 |
 
 `campaigns` / `상품·브리프` / `이미지소재` / `정책·참고자료` /
 `(추가자료)고객질문·검색데이터` / `(추가자료)주력키워드` 시트를 채우고,
 `adgroups` · `ads` 는 AI 에이전트가 나중에 채우므로 비워 둡니다.
 폼에 없는 담당자 정보는 `담당자·제출정보` 시트를 한 장 덧붙여 기록합니다.
 
-### 환경변수
+### 메일 환경변수
 
-`.env.example` 참고. `RESEND_API_KEY` 가 없으면 메일 대신
-브라우저에서 파일을 내려받도록 안내하므로 로컬에서도 그대로 동작합니다.
+`.env.example` 참고. `SMTP_HOST`가 설정되면 사내 SMTP Relay로 우선 발송하며,
+설정된 Relay가 실패해도 외부 Resend로 우회하지 않습니다. Relay가 아직 없다면
+기존 `RESEND_API_KEY` 경로를 사용합니다. 둘 다 없으면 브라우저에서 파일을
+내려받도록 안내하므로 로컬에서도 그대로 동작합니다.
+
+사내 Relay 주소와 발신 주소는 운영 환경변수로만 등록합니다. `SMTP_PASS`는
+비밀값으로 등록하고, TLS 필요 여부는 IT운영팀 확인 뒤
+`SMTP_REQUIRE_TLS=true`로 전환합니다.
 
 ### 양식이 개정되면
 
